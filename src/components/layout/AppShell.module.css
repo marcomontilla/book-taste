@@ -1,0 +1,139 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--color-bg);
+}
+
+/* ── Top bar ──────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: var(--topbar-height);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.avatarBtn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Body (sidebar + main) ────────────────── */
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar (desktop) ────────────────────── */
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: 220px;
+  padding: 1rem 0.75rem;
+  gap: 0.25rem;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navItem:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.navItemActive {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.navIcon { font-size: 1.125rem; }
+.navLabel { line-height: 1; }
+
+/* ── Main content ─────────────────────────── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1rem;
+  /* extra bottom padding so content doesn't hide behind mobile nav */
+  padding-bottom: calc(var(--bottomnav-height) + 1.25rem);
+}
+
+/* ── Bottom nav (mobile) ──────────────────── */
+.bottomNav {
+  display: flex;
+  height: var(--bottomnav-height);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+  /* safe area for notch phones */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottomNavItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.bottomNavItem:hover,
+.bottomNavItemActive {
+  color: var(--color-primary);
+}
+
+.bottomNavIcon { font-size: 1.25rem; line-height: 1; }
+.bottomNavLabel { line-height: 1; }
+
+/* ── Breakpoints ──────────────────────────── */
+@media (min-width: 768px) {
+  .sidebar { display: flex; }
+
+  .main {
+    padding: 1.5rem 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .bottomNav { display: none; }
+}

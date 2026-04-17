@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+
+# env files — never commit real env values
+.env
+.env.local
+.env.*.local
+
+# claude code internals — local only
+.claude/
+for_claude/
+
+# editor / OS
+.vscode/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# logs
+*.log
+npm-debug.log*
