@@ -74,19 +74,16 @@ export async function startScan(
     _controls = await _reader.decodeFromVideoDevice(
       deviceId,
       videoEl,
-      (result, err) => {
+      (result, _err) => {
         if (result) {
           const raw = result.getText()
           if (isIsbn(raw)) {
             onDetect(normalizeIsbn(raw))
           }
-          // Non-ISBN barcodes are silently ignored — keep scanning
-        } else if (err) {
-          // NotFoundException fires on every empty frame — ignore it
-          if (err.name !== 'NotFoundException') {
-            onError(new Error(err.message))
-          }
+          // Non-ISBN barcodes silently ignored — keep scanning
         }
+        // All callback errors are decode-loop errors (NotFoundException etc) — ignore.
+        // Camera setup errors are caught by the outer try/catch below.
       },
     )
   } catch (err) {

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ScannerView } from '@/components/scanner/ScannerView'
 import { lookupByIsbn, upsertBook } from '@/services/books'
@@ -20,11 +20,14 @@ export default function ScanPage() {
   const { showToast } = useToast()
   const [state, setState] = useState<ScanState>({ phase: 'scanning' })
   const [scannerActive, setScannerActive] = useState(true)
+  const detectedRef = useRef(false)
 
   const handleDetect = useCallback(async (result: ScanResult) => {
+    if (detectedRef.current) return
     const isbn = result.isbn13 ?? result.isbn10
     if (!isbn) return
 
+    detectedRef.current = true
     setScannerActive(false)
     setState({ phase: 'looking_up', isbn })
 
@@ -50,6 +53,7 @@ export default function ScanPage() {
   }
 
   function handleScanAgain() {
+    detectedRef.current = false
     setState({ phase: 'scanning' })
     setScannerActive(true)
   }
