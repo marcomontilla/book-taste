@@ -128,6 +128,13 @@
   color: var(--color-text-muted);
 }
 
+/* ── Progress disabled state ──────────────────────────────── */
+.progressDisabled {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* ── Description ──────────────────────────────────────────── */
 .description {
   font-size: 0.9rem;

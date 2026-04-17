@@ -168,6 +168,7 @@ export function BookDetailPage() {
           <span>{status === 'completed' ? 'Completed ✓' : 'Mark as completed'}</span>
         </label>
 
+        <div className={status === 'completed' ? styles.progressDisabled : undefined}>
         {effectiveTotal ? (
           <div className={styles.progressArea}>
             <ProgressBar current={currentPage} total={effectiveTotal} showLabel />
@@ -180,6 +181,7 @@ export function BookDetailPage() {
                 value={currentPage}
                 min={0}
                 max={effectiveTotal}
+                disabled={status === 'completed'}
                 onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
               />
               <span className={styles.pageMeta}>of {effectiveTotal}</span>
@@ -194,10 +196,12 @@ export function BookDetailPage() {
               className={`form-input ${styles.pageInput}`}
               value={currentPage}
               min={0}
+              disabled={status === 'completed'}
               onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
             />
           </div>
         )}
+        </div>
       </section>
 
       {/* Description */}

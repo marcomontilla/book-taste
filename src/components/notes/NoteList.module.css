@@ -116,13 +116,12 @@
 
 .formRow {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  align-items: center;
 }
 
 .pageInput {
-  width: 9rem;
-  flex-shrink: 0;
+  width: 100%;
   font-size: 0.875rem !important;
   padding: 0.5rem 0.75rem !important;
 }
@@ -130,5 +129,22 @@
 .formActions {
   display: flex;
   gap: 0.5rem;
-  margin-left: auto;
+  justify-content: flex-end;
+}
+
+@media (min-width: 480px) {
+  .formRow {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pageInput {
+    width: 9rem;
+    flex-shrink: 0;
+  }
+
+  .formActions {
+    justify-content: flex-start;
+    margin-left: auto;
+  }
 }

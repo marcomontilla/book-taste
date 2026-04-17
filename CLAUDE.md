@@ -12,101 +12,137 @@ npm run lint         # eslint, zero warnings policy
 npm run preview      # serve the dist/ build locally
 ```
 
-There are no tests yet. Type-check and lint are the verification gates.
+No tests yet. Type-check and lint are the verification gates.
 
 ## Environment
 
-Copy `.env.example` → `.env` and fill in two values before `npm run dev` will work:
+Copy `.env.example` → `.env` before running:
 
 ```
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-The app throws at startup if either is missing (`src/lib/supabase.ts`).
+The app throws at startup if either is missing (`src/lib/supabase.ts`). Never commit `.env`. Never use the service role key on the frontend.
 
 ## Architecture
 
-**Data flow:** React → Supabase JS client (anon key only) → Postgres with RLS. No backend server. All authorization is enforced by Supabase RLS policies.
+**Stack:** React 18 + TypeScript + Vite, Supabase JS v2 (auth + postgres), React Router v6, CSS Modules. No backend server. No state management library.
 
-**Auth:** `AuthContext` (`src/contexts/AuthContext.tsx`) is the single source of truth for session state. It hydrates from `localStorage` on mount via `getSession()` and stays in sync via `onAuthStateChange`. All auth methods throw on error; pages catch and display errors locally. Google OAuth flow → `/auth/callback` → `AuthCallbackPage`.
+**Data flow:** React → Supabase JS client (anon key) → Postgres with RLS. All authorization is at the database level via RLS policies — the frontend is never trusted.
 
-**Routing:** React Router v6. Public routes (`/login`, `/signup`, `/auth/callback`) render standalone. All app routes nested under `ProtectedRoute → AppShell` in `App.tsx`. `ProtectedRoute` redirects to `/login` and preserves the intended destination in router state.
+**Auth:** `AuthContext` (`src/contexts/AuthContext.tsx`) is the single session source of truth. Hydrates from localStorage via `getSession()` on mount, stays in sync via `onAuthStateChange`. All auth methods throw on error; callers catch and display locally. Google OAuth redirects through `/auth/callback` → `AuthCallbackPage`.
 
-**Layout:** `AppShell` renders a persistent top bar (with search button) plus two navs: left sidebar (≥ 768px) and bottom tab bar (< 768px). `<Outlet />` renders into a scrollable `main` area. Shell uses `100dvh` and `env(safe-area-inset-bottom)` for mobile/notch safety.
+**Routing:** All app routes nested under `ProtectedRoute → AppShell` in `App.tsx`. `ProtectedRoute` redirects unauthenticated users to `/login`, preserving the intended destination in router state.
 
-**Styling:** CSS Modules per component + `src/styles/globals.css` for design tokens (CSS custom properties), reset, and shared utility classes (`.btn`, `.btn-primary`, `.btn-outline`, `.card`, `.form-input`, `.form-label`, `.empty-state`, `.spinner`). No CSS framework. Key tokens: `--color-primary`, `--color-primary-light`, `--color-bg`, `--color-surface`, `--color-border`, `--color-text-muted`, `--color-danger`, `--radius`, `--shadow-sm`.
+**Layout:** `AppShell` renders a top bar (with 🔍 search button) + left sidebar (≥ 768px) + bottom tab bar (< 768px). `<Outlet />` renders into a scrollable `main`. Shell uses `100dvh` and `env(safe-area-inset-bottom)` for mobile/notch safety. Designed for future Capacitor packaging.
 
-**TypeScript path alias:** `@/` maps to `src/`. Defined in `tsconfig.json` and `vite.config.ts`.
+**Styling:** CSS Modules per component + `src/styles/globals.css` for design tokens, reset, and shared utility classes. No CSS framework.
 
-**DB types:** `src/types/database.ts` holds hand-maintained Supabase-style DB types (Row/Insert/Update/Relationships per table). Must include `Views`, `Functions`, `Enums`, `CompositeTypes` fields (even as `Record<never, never>`) for Supabase JS v2.100+ to type queries correctly. `src/lib/supabase.ts` passes `Database` as a generic to `createClient`.
+Key CSS custom properties (defined in `globals.css`):
+```
+--color-primary        #4f46e5
+--color-primary-light  #eef2ff
+--color-bg             #f8f8fa
+--color-surface        #ffffff
+--color-border         #e5e7eb
+--color-text           #111827
+--color-text-muted     #6b7280
+--color-danger         #ef4444
+--topbar-height        3.5rem
+--bottomnav-height     3.75rem
+--radius / --radius-sm
+--shadow-sm / --shadow
+```
 
-**Toast:** Global `ToastContext` (`src/contexts/ToastContext.tsx`) provides `showToast(message, type)`. Wrap any component that shows feedback in `ToastProvider` (already at App root). Toasts auto-dismiss after 3.2s.
+Shared utility classes (use these, don't re-invent): `.btn`, `.btn-primary`, `.btn-outline`, `.form-input`, `.form-label`, `.form-field`, `.form-error`, `.card`, `.empty-state`, `.empty-state-icon/title/body`, `.spinner`, `.splash`.
+
+**TypeScript path alias:** `@/` → `src/`. Defined in both `tsconfig.json` and `vite.config.ts`.
+
+**DB types:** `src/types/database.ts` is hand-maintained (not generated). Must include `Views`, `Functions`, `Enums`, `CompositeTypes` as `Record<never, never>` and each table must have a `Relationships` array — required for Supabase JS v2.100+ to resolve insert/update types correctly. If a table's `Update` type is `never`, change it to a full partial type or Supabase's overload resolution breaks.
+
+**Toast:** `ToastContext` (`src/contexts/ToastContext.tsx`) provides `useToast()` → `showToast(message, type?)`. Already mounted at App root via `ToastProvider`. Auto-dismisses after 3.2s.
 
 ## Data layer conventions
 
-All Supabase queries go in `src/services/` — pages and components never import `supabase` directly:
+Pages and components never import `supabase` directly. All queries go through:
 
 | File | Domain |
 |---|---|
-| `services/books.ts` | Open Library search API + `books` table upsert |
-| `services/userBooks.ts` | `user_books` CRUD, reading progress, completion |
-| `services/collections.ts` | Collections + WTR collection + collection_books |
-| `services/notes.ts` | Notes CRUD |
+| `src/services/books.ts` | Open Library search API + `books` table upsert |
+| `src/services/userBooks.ts` | `user_books` CRUD, progress, completion toggle, remove |
+| `src/services/collections.ts` | Collections + WTR + collection_books membership |
+| `src/services/notes.ts` | Notes CRUD |
 
-Custom hooks in `src/hooks/` wrap services into React state:
+Hooks in `src/hooks/` wrap services into React state:
 
-| Hook | Returns |
+| Hook | Purpose |
 |---|---|
-| `useLibrary` | User's full library with book joins |
-| `useWantToRead` | WTR collection items |
+| `useLibrary` | Full library (`user_books` joined with `books`) |
+| `useWantToRead` | WTR collection items (books, not user_books) |
 | `useCollections` | All non-WTR collections with book counts |
-| `useUserBook(id)` | Single user_book + book, used on detail page |
-| `useNotes(userBookId)` | Notes for a user_book, with add/update/remove |
-| `useDebounce(value, ms)` | Debounced value — used for auto-save |
+| `useUserBook(id)` | Single `user_book` + book for the detail page |
+| `useNotes(userBookId)` | Notes list with `add`, `update`, `remove` mutations |
+| `useDebounce(value, ms)` | Debounced value — drives auto-save in the detail page |
 
 ## Database
 
-Migrations in `supabase/migrations/` — run in order via Supabase SQL editor or `supabase db push`:
+All migrations in `supabase/migrations/` — must be run in order via Supabase SQL editor or `supabase db push`:
 
-1. `001_schema.sql` — tables and indexes
-2. `002_triggers.sql` — auto-create profile + WTR collection on signup; `updated_at`; auto-set `completed_at` when status → 'completed'
-3. `003_rls.sql` — RLS policies
-4. `004_add_ol_key.sql` — `open_library_key` column on `books` for dedup when no ISBN
-5. `005_user_id_defaults.sql` — `DEFAULT auth.uid()` on `user_books`, `collections`, `notes` so services don't need to pass user_id on insert
+| File | What it does |
+|---|---|
+| `001_schema.sql` | All tables + indexes |
+| `002_triggers.sql` | Auto-create profile + WTR collection on signup; `updated_at`; auto-set `completed_at` when status → 'completed' |
+| `003_rls.sql` | RLS policies for all tables |
+| `004_add_ol_key.sql` | `open_library_key` column on `books` for ISBN-less dedup |
+| `005_user_id_defaults.sql` | `DEFAULT auth.uid()` on `user_books`, `collections`, `notes` |
 
-**Key design decisions:**
-- `books` is a shared catalogue (not user-owned). Any authenticated user can read/insert. Dedup order: `isbn_13` → `isbn_10` → `open_library_key`.
-- `user_books.status` only allows `'reading'` or `'completed'`. No "want to read" status.
-- "Want to Read" is a `collections` row with `is_want_to_read = true`, auto-seeded per user on signup. It cannot be deleted (RLS blocks it). Books in WTR are in `collection_books`, not `user_books`.
-- `profiles` insert is handled exclusively by the `handle_new_user` trigger (SECURITY DEFINER) — no frontend insert policy.
-- `user_books.completed_at` is auto-set by a trigger; services only toggle `status`.
-- `collection_books.Update` is a full update type (not `never`) to satisfy Supabase JS v2.100+ overload resolution.
+**Key design decisions — do not change without considering these:**
+
+- `books` is a **shared catalogue**, not user-owned. Any authenticated user can read/insert. Dedup on insert: `isbn_13` → `isbn_10` → `open_library_key` (in that priority order).
+- `user_books.status` accepts only `'reading'` or `'completed'`. There is no third status. "Want to Read" is not a status.
+- **"Want to Read"** is a `collections` row with `is_want_to_read = true`, auto-seeded per user by the signup trigger. RLS blocks deletion of it. Books in WTR live in `collection_books`, not `user_books` — the two lists are independent.
+- `profiles` has no insert RLS policy. Inserts happen only via the `handle_new_user` trigger (SECURITY DEFINER).
+- `user_books.completed_at` is set/cleared automatically by a DB trigger when `status` changes. Services only write `status`, never `completed_at`.
+- `DEFAULT auth.uid()` on user_id columns (migration 005) means service insert calls never need to pass `user_id` explicitly — Postgres fills it from the active session.
 
 ## Open Library integration
 
-Search endpoint: `https://openlibrary.org/search.json` (no API key required)
-Cover images: `https://covers.openlibrary.org/b/id/{cover_i}-M.jpg`
+- Search: `GET https://openlibrary.org/search.json?q={query}&fields=...` — no API key
+- Covers: `https://covers.openlibrary.org/b/id/{cover_i}-M.jpg` (S/M/L sizes)
+- The OL work key (`/works/OLxxxxxW`) is stored as `open_library_key` as the dedup fallback when no ISBN exists.
+- **To add barcode scanning later:** resolve the scanned ISBN via `https://openlibrary.org/isbn/{isbn}.json`, normalize through the same `normalizeDoc()` function in `services/books.ts`, and call `upsertBook()`. No other changes needed.
 
-`searchBooks(query)` in `services/books.ts` fetches and normalizes OL docs into `BookSearchResult` objects. `upsertBook(result)` does the dedup check then inserts. The `olKey` field (`/works/OLxxxxW`) is stored as `open_library_key` for dedup fallback.
+## UI behaviours to preserve
 
-## Responsive behavior
+- **Progress auto-save:** `BookDetailPage` debounces `currentPage` via `useDebounce(currentPage, 1000)` and writes to Supabase when the debounced value differs from the server value. No save button.
+- **Progress disabled when completed:** When `status === 'completed'`, the progress area (bar + page input) is wrapped in `.progressDisabled` (opacity 0.45 + pointer-events none). The page value is preserved so unchecking "completed" restores it immediately.
+- **Note creation is intentional:** The "Add note" button must be clicked to show the form. Saving is also explicit (Save button). Editing an existing note auto-saves with a 1s debounce.
+- **Search result add buttons:** Each result card tracks its own `'idle' | 'loading' | 'done'` state per button. After a successful add the button permanently flips to "✓ In Library" / "✓ Saved" for that session.
+- **WTR → Library flow:** "Start reading" in `WantToReadPage` calls `addToLibrary(bookId)` then `removeFromWantToRead(collectionBookId)` — the book moves from `collection_books` to `user_books`.
 
-| Breakpoint | Nav | Content |
+## Responsive breakpoints
+
+| Width | Navigation | Modal style |
 |---|---|---|
-| < 768px | Bottom tab bar (4 items) | Full-width |
-| ≥ 768px | Left sidebar (220px) + search item | Sidebar + main |
+| < 480px | Bottom tabs | Form rows stack vertically (e.g. note form) |
+| < 640px | Bottom tabs | Modal slides up as a bottom sheet |
+| 640–767px | Bottom tabs | Modal is a centred dialog |
+| ≥ 768px | Left sidebar (220px) | Modal is a centred dialog |
 
-Search is always accessible via the 🔍 button in the top bar (all sizes) and as a sidebar item (desktop).
+Search (🔍) is accessible at all sizes via the top bar button, and also as a sidebar nav item on desktop.
 
 ## Routes
 
 | Path | Component | Notes |
 |---|---|---|
-| `/library` | `LibraryPage` | Filter by all/reading/completed |
-| `/books/:id` | `BookDetailPage` | `:id` is `user_book.id` |
-| `/want-to-read` | `WantToReadPage` | Shows collection_books, not user_books |
-| `/collections` | `CollectionsPage` | Create/delete collections |
-| `/collections/:id` | `CollectionDetailPage` | Rename, remove books |
-| `/search` | `SearchPage` | OL search, add to library or WTR |
-| `/settings` | `SettingsPage` | Sign out |
+| `/login` | `LoginPage` | Public |
+| `/signup` | `SignUpPage` | Public |
+| `/auth/callback` | `AuthCallbackPage` | OAuth redirect handler |
+| `/library` | `LibraryPage` | Filter: all / reading / completed |
+| `/books/:id` | `BookDetailPage` | `:id` is `user_book.id`, not `book.id` |
+| `/want-to-read` | `WantToReadPage` | `collection_books` list, not `user_books` |
+| `/collections` | `CollectionsPage` | Create / delete collections |
+| `/collections/:id` | `CollectionDetailPage` | Rename, remove individual books |
+| `/search` | `SearchPage` | OL search → add to library or WTR |
+| `/settings` | `SettingsPage` | Shows email, sign out |
