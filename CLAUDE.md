@@ -191,6 +191,29 @@ supabase functions deploy generate-insights --no-verify-jwt
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+**5. Vercel deployment (production)**
+Production URL: `https://book-taste-woad.vercel.app`
+`vercel.json` rewrites all routes to `index.html` — required for React Router to work (without it, any route other than `/` returns 404).
+Environment variables must be set in Vercel dashboard (Settings → Environment Variables) before deploying:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Deploy command:
+```bash
+vercel --prod
+```
+
+OAuth redirect URL to add in Supabase (Auth → URL Configuration) and Google Cloud Console:
+```
+https://book-taste-woad.vercel.app/auth/callback
+```
+
+**6. Mobile testing via ngrok**
+Google OAuth won't work with ngrok unless you add the ngrok URL to both Supabase redirect URLs and Google OAuth authorized redirect URIs each session. Use the production Vercel URL for real testing instead. If you do need ngrok:
+```bash
+ngrok http http://localhost:5173   # must use full http://localhost:5173, not just port
+```
+
 ## Routes
 
 | Path | Component | Notes |
