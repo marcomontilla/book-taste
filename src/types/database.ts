@@ -185,6 +185,60 @@ export interface Database {
           { foreignKeyName: 'notes_user_book_id_fkey'; columns: ['user_book_id']; referencedRelation: 'user_books'; referencedColumns: ['id'] }
         ]
       }
+      book_insights: {
+        Row: {
+          id: string
+          user_id: string
+          book_id: string
+          like_reason: string | null
+          dislike_reason: string | null
+          generated_from_source: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          book_id: string
+          like_reason?: string | null
+          dislike_reason?: string | null
+          generated_from_source?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          like_reason?: string | null
+          dislike_reason?: string | null
+          generated_from_source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      book_recommendations: {
+        Row: {
+          id: string
+          user_id: string
+          source_book_id: string | null
+          recommendation_type: 'similar' | 'blind_side' | 'general'
+          payload_json: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          source_book_id?: string | null
+          recommendation_type: 'similar' | 'blind_side' | 'general'
+          payload_json: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          payload_json?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<never, never>
     Functions: Record<never, never>

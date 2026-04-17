@@ -25,6 +25,14 @@ export function AppShell() {
         <div className={styles.topbarRight}>
           <button
             className={styles.searchBtn}
+            onClick={() => navigate('/scan')}
+            title="Scan barcode"
+            aria-label="Scan barcode"
+          >
+            📷
+          </button>
+          <button
+            className={styles.searchBtn}
             onClick={() => navigate('/search')}
             title="Search books"
             aria-label="Search books"
@@ -59,6 +67,15 @@ export function AppShell() {
           >
             <span className={styles.navIcon}>🔍</span>
             <span className={styles.navLabel}>Search</span>
+          </NavLink>
+          <NavLink
+            to="/scan"
+            className={({ isActive }) =>
+              [styles.navItem, isActive ? styles.navItemActive : ''].join(' ')
+            }
+          >
+            <span className={styles.navIcon}>📷</span>
+            <span className={styles.navLabel}>Scan</span>
           </NavLink>
         </nav>
 

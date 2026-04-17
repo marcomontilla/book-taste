@@ -3,9 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { BookCover } from '@/components/books/BookCover'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { NoteList } from '@/components/notes/NoteList'
+import { IntelligencePanel } from '@/components/intelligence/IntelligencePanel'
 import { useUserBook } from '@/hooks/useUserBook'
 import { useDebounce } from '@/hooks/useDebounce'
 import {
+  getLibrary,
   updateProgress,
   setCompleted,
   removeFromLibrary,
@@ -32,6 +34,9 @@ export function BookDetailPage() {
   // Collections membership
   const [collectionStatus, setCollectionStatus] = useState<BookCollectionStatus[]>([])
 
+  // Completed books for intelligence panel
+  const [completedBooks, setCompletedBooks] = useState<{ title: string; authors: string[] }[]>([])
+
   // Sync local state from loaded data
   useEffect(() => {
     if (userBook) setCurrentPage(userBook.current_page)
@@ -44,6 +49,19 @@ export function BookDetailPage() {
       .then(setCollectionStatus)
       .catch(() => {})
   }, [userBook])
+
+  // Load completed books for intelligence
+  useEffect(() => {
+    getLibrary()
+      .then(books => {
+        setCompletedBooks(
+          books
+            .filter(ub => ub.status === 'completed')
+            .map(ub => ({ title: ub.book.title, authors: ub.book.authors })),
+        )
+      })
+      .catch(() => {})
+  }, [])
 
   // Auto-save progress
   useEffect(() => {
@@ -236,6 +254,11 @@ export function BookDetailPage() {
       {/* Notes */}
       <section className={styles.section}>
         <NoteList userBookId={userBook.id} />
+      </section>
+
+      {/* Intelligence */}
+      <section className={styles.section}>
+        <IntelligencePanel userBook={userBook} completedBooks={completedBooks} />
       </section>
 
       {/* Danger zone */}

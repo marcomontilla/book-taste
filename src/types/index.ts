@@ -92,6 +92,41 @@ export interface BookSearchResult {
   isbn13: string | null
   pageCount: number | null
   seriesName: string | null
+  seriesNumber: number | null
+}
+
+// ── Intelligence ──────────────────────────────────────────────────────────────
+
+export interface RecommendationItem {
+  title: string
+  author: string
+  reason: string
+}
+
+export interface BookInsight {
+  id: string
+  book_id: string
+  like_reason: string | null
+  dislike_reason: string | null
+  generated_from_source: string
+  created_at: string
+  updated_at: string
+}
+
+export interface BookRecommendation {
+  id: string
+  source_book_id: string | null
+  recommendation_type: 'similar' | 'blind_side' | 'general'
+  payload_json: RecommendationItem[]
+  created_at: string
+}
+
+// Structured intelligence result as returned by the edge function
+export interface GeneratedInsights {
+  like_reason: string
+  dislike_reason: string
+  similar: RecommendationItem[]
+  blind_side: RecommendationItem
 }
 
 // Represents a collection membership state on the book detail page

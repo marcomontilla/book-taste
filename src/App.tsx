@@ -13,6 +13,7 @@ import { CollectionDetailPage } from '@/pages/CollectionDetailPage'
 import { SearchPage } from '@/pages/SearchPage'
 import { BookDetailPage } from '@/pages/BookDetailPage'
 import { SettingsPage } from '@/pages/SettingsPage'
+import ScanPage from '@/pages/ScanPage'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/search"              element={<SearchPage />} />
               <Route path="/books/:id"           element={<BookDetailPage />} />
               <Route path="/settings"            element={<SettingsPage />} />
+              <Route path="/scan"               element={<ScanPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/library" replace />} />

@@ -69,10 +69,12 @@ Pages and components never import `supabase` directly. All queries go through:
 
 | File | Domain |
 |---|---|
-| `src/services/books.ts` | Open Library search API + `books` table upsert |
+| `src/services/books.ts` | Open Library search API + `books` table upsert + ISBN lookup |
 | `src/services/userBooks.ts` | `user_books` CRUD, progress, completion toggle, remove |
 | `src/services/collections.ts` | Collections + WTR + collection_books membership |
 | `src/services/notes.ts` | Notes CRUD |
+| `src/services/scanner.ts` | `@zxing/browser` barcode scanner — `startScan`, `stopScan`, `lookupByIsbn` |
+| `src/services/intelligence.ts` | Cache reads/writes for `book_insights` + `book_recommendations`; calls `generate-insights` edge function |
 
 Hooks in `src/hooks/` wrap services into React state:
 
@@ -84,6 +86,7 @@ Hooks in `src/hooks/` wrap services into React state:
 | `useUserBook(id)` | Single `user_book` + book for the detail page |
 | `useNotes(userBookId)` | Notes list with `add`, `update`, `remove` mutations |
 | `useDebounce(value, ms)` | Debounced value — drives auto-save in the detail page |
+| `useInsights(bookId)` | Loads cached insights + recommendations; exposes `generate()` for on-demand AI call |
 
 ## Database
 
@@ -96,6 +99,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 | `003_rls.sql` | RLS policies for all tables |
 | `004_add_ol_key.sql` | `open_library_key` column on `books` for ISBN-less dedup |
 | `005_user_id_defaults.sql` | `DEFAULT auth.uid()` on `user_books`, `collections`, `notes` |
+| `006_intelligence.sql` | `book_insights` and `book_recommendations` tables + RLS |
 
 **Key design decisions — do not change without considering these:**
 
@@ -111,7 +115,22 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 - Search: `GET https://openlibrary.org/search.json?q={query}&fields=...` — no API key
 - Covers: `https://covers.openlibrary.org/b/id/{cover_i}-M.jpg` (S/M/L sizes)
 - The OL work key (`/works/OLxxxxxW`) is stored as `open_library_key` as the dedup fallback when no ISBN exists.
-- **To add barcode scanning later:** resolve the scanned ISBN via `https://openlibrary.org/isbn/{isbn}.json`, normalize through the same `normalizeDoc()` function in `services/books.ts`, and call `upsertBook()`. No other changes needed.
+- `lookupByIsbn(isbn)` in `services/books.ts`: checks DB first by `isbn_13`/`isbn_10`, then falls back to OL search. Used by `ScanPage`.
+
+## Barcode scanning
+
+- `services/scanner.ts` wraps `@zxing/browser` (`BrowserMultiFormatReader`) — prefers rear/environment camera, ignores `NotFoundException`.
+- `ScannerView` component: renders `<video>` + viewfinder overlay with corner brackets and animated sweep line.
+- `ScanPage` flow: camera open → detect → ISBN lookup → show result card → "Add to library" calls `upsertBook` then `addToLibrary` → navigate to book detail.
+- Scan button (📷) in top bar and sidebar. Route: `/scan`.
+
+## Book Intelligence (AI)
+
+- **Edge function:** `supabase/functions/generate-insights/index.ts` (Deno). Calls Claude Haiku with book metadata + up to 12 completed book titles. Returns `{ like_reason, dislike_reason, similar: [{title, author, reason}], blind_side: {title, author, reason} }`.
+- **Deploy:** `supabase functions deploy generate-insights` + `supabase secrets set ANTHROPIC_API_KEY=sk-ant-...`
+- **Cache-first:** `book_insights` (upsert on user_id+book_id) + `book_recommendations` (delete+insert). The edge function is only called when the user explicitly clicks "Generate insights" or "Refresh" — never in the background.
+- **Cost:** ~$0.001/generation (Claude Haiku). Safe for free-tier — never auto-triggered.
+- `IntelligencePanel` is rendered in `BookDetailPage` below notes. It receives `userBook` and the current user's completed books list (fetched from `getLibrary()` on mount).
 
 ## UI behaviours to preserve
 
@@ -130,7 +149,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 | 640–767px | Bottom tabs | Modal is a centred dialog |
 | ≥ 768px | Left sidebar (220px) | Modal is a centred dialog |
 
-Search (🔍) is accessible at all sizes via the top bar button, and also as a sidebar nav item on desktop.
+Search (🔍) and Scan (📷) are accessible at all sizes via the top bar buttons, and also as sidebar nav items on desktop.
 
 ## Routes
 
@@ -145,4 +164,5 @@ Search (🔍) is accessible at all sizes via the top bar button, and also as a s
 | `/collections` | `CollectionsPage` | Create / delete collections |
 | `/collections/:id` | `CollectionDetailPage` | Rename, remove individual books |
 | `/search` | `SearchPage` | OL search → add to library or WTR |
+| `/scan` | `ScanPage` | Barcode scanner → ISBN lookup → add to library |
 | `/settings` | `SettingsPage` | Shows email, sign out |
