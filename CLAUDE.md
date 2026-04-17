@@ -151,6 +151,40 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 
 Search (🔍) and Scan (📷) are accessible at all sizes via the top bar buttons, and also as sidebar nav items on desktop.
 
+## Known deployment gotchas
+
+Issues we have hit in production — check these before debugging further.
+
+**1. Edge function deploy: must run from project root**
+`supabase functions deploy` looks for `supabase/functions/` relative to the current directory.
+Always run from `C:\Users\marco\dev\book-taste`, not from `C:\Users\marco` or anywhere else.
+```bash
+cd C:\Users\marco\dev\book-taste
+supabase functions deploy generate-insights --no-verify-jwt
+```
+
+**2. Edge function: always deploy with `--no-verify-jwt`**
+Newer Supabase projects issue JWTs signed with ES256. The edge function runtime rejects them with
+`UNAUTHORIZED_UNSUPPORTED_TOKEN_ALGORITHM`. The `--no-verify-jwt` flag skips runtime JWT verification.
+This is safe because all data writes go through the frontend with RLS enforced at the DB level.
+
+**3. New tables after migration 005 need `DEFAULT auth.uid()` added manually**
+Migration 005 added `DEFAULT auth.uid()` to the existing tables. Any table created after that (e.g.
+`book_insights`, `book_recommendations`) must have the default set explicitly, otherwise insert RLS
+policies that check `auth.uid() = user_id` will fail with `42501` because `user_id` is null.
+After creating a new user-scoped table, always run:
+```sql
+alter table public.<table_name>
+  alter column user_id set default auth.uid();
+```
+
+**4. Full edge function deploy sequence**
+```bash
+cd C:\Users\marco\dev\book-taste
+supabase functions deploy generate-insights --no-verify-jwt
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+```
+
 ## Routes
 
 | Path | Component | Notes |
