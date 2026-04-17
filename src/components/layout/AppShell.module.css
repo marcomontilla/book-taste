@@ -25,6 +25,25 @@
   letter-spacing: -0.02em;
 }
 
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.searchBtn {
+  background: none;
+  border: none;
+  font-size: 1.125rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.searchBtn:hover { background: var(--color-bg); }
+
 .avatarBtn {
   width: 2rem;
   height: 2rem;

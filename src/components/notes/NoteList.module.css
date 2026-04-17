@@ -1,0 +1,134 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.heading {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.addBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.muted {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.noteItem {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pageTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.noteContent {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: pre-wrap;
+}
+
+.noteContent:hover { color: var(--color-primary); }
+
+.noteActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.125rem;
+}
+
+.editLink, .deleteLink {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  color: var(--color-text-muted);
+}
+
+.editLink:hover  { color: var(--color-primary); }
+.deleteLink:hover { color: var(--color-danger); }
+
+.editArea {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* shared form elements */
+.form {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  line-height: 1.5;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.textarea:focus { border-color: var(--color-primary); }
+
+.formRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pageInput {
+  width: 9rem;
+  flex-shrink: 0;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}

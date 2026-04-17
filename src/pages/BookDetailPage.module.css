@@ -1,0 +1,189 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 680px;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  align-self: flex-start;
+}
+
+.backBtn:hover { color: var(--color-primary); }
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.heroInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.author {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.series {
+  font-size: 0.8125rem;
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.meta {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Sections ─────────────────────────────────────────────── */
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* ── Progress ─────────────────────────────────────────────── */
+.completedRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.progressArea {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pageInputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.pageLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.pageInput {
+  width: 5rem !important;
+  padding: 0.4rem 0.625rem !important;
+  font-size: 0.9375rem !important;
+  text-align: center;
+}
+
+.pageMeta {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Description ──────────────────────────────────────────── */
+.description {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+/* ── Collections ──────────────────────────────────────────── */
+.collectionPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill {
+  padding: 0.375rem 0.875rem;
+  border-radius: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pillActive {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── Danger zone ──────────────────────────────────────────── */
+.dangerZone {
+  padding-bottom: 1rem;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.removeBtn:hover { color: var(--color-danger); }
+
+/* ── Desktop: wider hero cover ────────────────────────────── */
+@media (min-width: 480px) {
+  .title { font-size: 1.5rem; }
+}

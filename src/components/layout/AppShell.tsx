@@ -3,10 +3,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import styles from './AppShell.module.css'
 
 const navItems = [
-  { to: '/library',     label: 'Library',       icon: '📚' },
-  { to: '/want-to-read', label: 'Want to Read', icon: '🔖' },
-  { to: '/collections', label: 'Collections',   icon: '🗂' },
-  { to: '/settings',   label: 'Settings',       icon: '⚙️' },
+  { to: '/library',      label: 'Library',       icon: '📚' },
+  { to: '/want-to-read', label: 'Want to Read',  icon: '🔖' },
+  { to: '/collections',  label: 'Collections',   icon: '🗂'  },
+  { to: '/settings',     label: 'Settings',      icon: '⚙️' },
 ]
 
 export function AppShell() {
@@ -20,16 +20,24 @@ export function AppShell() {
 
   return (
     <div className={styles.shell}>
-      {/* Top bar — visible on all sizes */}
       <header className={styles.topbar}>
         <span className={styles.brand}>BookTaste</span>
-        <button className={styles.avatarBtn} onClick={handleSignOut} title="Sign out">
-          {user?.email?.[0].toUpperCase() ?? '?'}
-        </button>
+        <div className={styles.topbarRight}>
+          <button
+            className={styles.searchBtn}
+            onClick={() => navigate('/search')}
+            title="Search books"
+            aria-label="Search books"
+          >
+            🔍
+          </button>
+          <button className={styles.avatarBtn} onClick={handleSignOut} title="Sign out">
+            {user?.email?.[0].toUpperCase() ?? '?'}
+          </button>
+        </div>
       </header>
 
       <div className={styles.body}>
-        {/* Sidebar nav — desktop only */}
         <nav className={styles.sidebar}>
           {navItems.map(item => (
             <NavLink
@@ -43,15 +51,22 @@ export function AppShell() {
               <span className={styles.navLabel}>{item.label}</span>
             </NavLink>
           ))}
+          <NavLink
+            to="/search"
+            className={({ isActive }) =>
+              [styles.navItem, isActive ? styles.navItemActive : ''].join(' ')
+            }
+          >
+            <span className={styles.navIcon}>🔍</span>
+            <span className={styles.navLabel}>Search</span>
+          </NavLink>
         </nav>
 
-        {/* Main content area */}
         <main className={styles.main}>
           <Outlet />
         </main>
       </div>
 
-      {/* Bottom nav — mobile only */}
       <nav className={styles.bottomNav}>
         {navItems.map(item => (
           <NavLink

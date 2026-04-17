@@ -25,6 +25,7 @@ export interface Database {
           avatar_url?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       books: {
         Row: {
@@ -39,6 +40,7 @@ export interface Database {
           series_number: number | null
           isbn_10: string | null
           isbn_13: string | null
+          open_library_key: string | null
           created_at: string
         }
         Insert: {
@@ -53,6 +55,7 @@ export interface Database {
           series_number?: number | null
           isbn_10?: string | null
           isbn_13?: string | null
+          open_library_key?: string | null
           created_at?: string
         }
         Update: {
@@ -66,7 +69,9 @@ export interface Database {
           series_number?: number | null
           isbn_10?: string | null
           isbn_13?: string | null
+          open_library_key?: string | null
         }
+        Relationships: []
       }
       user_books: {
         Row: {
@@ -81,7 +86,8 @@ export interface Database {
         }
         Insert: {
           id?: string
-          user_id: string
+          // user_id has DEFAULT auth.uid() — omit to use the session user
+          user_id?: string
           book_id: string
           current_page?: number
           total_pages?: number | null
@@ -95,6 +101,9 @@ export interface Database {
           status?: 'reading' | 'completed'
           completed_at?: string | null
         }
+        Relationships: [
+          { foreignKeyName: 'user_books_book_id_fkey'; columns: ['book_id']; referencedRelation: 'books'; referencedColumns: ['id'] }
+        ]
       }
       collections: {
         Row: {
@@ -108,7 +117,8 @@ export interface Database {
         }
         Insert: {
           id?: string
-          user_id: string
+          // user_id has DEFAULT auth.uid() — omit to use the session user
+          user_id?: string
           name: string
           description?: string | null
           is_want_to_read?: boolean
@@ -120,6 +130,7 @@ export interface Database {
           description?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       collection_books: {
         Row: {
@@ -134,7 +145,16 @@ export interface Database {
           book_id: string
           added_at?: string
         }
-        Update: never
+        Update: {
+          id?: string
+          collection_id?: string
+          book_id?: string
+          added_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'collection_books_collection_id_fkey'; columns: ['collection_id']; referencedRelation: 'collections'; referencedColumns: ['id'] },
+          { foreignKeyName: 'collection_books_book_id_fkey'; columns: ['book_id']; referencedRelation: 'books'; referencedColumns: ['id'] }
+        ]
       }
       notes: {
         Row: {
@@ -148,7 +168,8 @@ export interface Database {
         }
         Insert: {
           id?: string
-          user_id: string
+          // user_id has DEFAULT auth.uid() — omit to use the session user
+          user_id?: string
           user_book_id: string
           content: string
           page_number?: number | null
@@ -160,7 +181,14 @@ export interface Database {
           page_number?: number | null
           updated_at?: string
         }
+        Relationships: [
+          { foreignKeyName: 'notes_user_book_id_fkey'; columns: ['user_book_id']; referencedRelation: 'user_books'; referencedColumns: ['id'] }
+        ]
       }
     }
+    Views: Record<never, never>
+    Functions: Record<never, never>
+    Enums: Record<never, never>
+    CompositeTypes: Record<never, never>
   }
 }

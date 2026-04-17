@@ -1,0 +1,56 @@
+.collectionCard {
+  display: flex;
+  align-items: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+
+.collectionCard:hover { box-shadow: var(--shadow); }
+
+.cardContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.collectionIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.collectionName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.collectionCount {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 0.125rem;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  padding: 0 0.875rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.deleteBtn:hover {
+  color: var(--color-danger);
+  background: #fef2f2;
+}
