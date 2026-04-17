@@ -14,6 +14,12 @@ npm run preview      # serve the dist/ build locally
 
 No tests yet. Type-check and lint are the verification gates.
 
+For mobile testing via ngrok (dev server is configured to accept all hosts):
+```bash
+ngrok http http://localhost:5173
+```
+Note: must use `http://localhost:5173` not just `5173` — ngrok needs the explicit scheme.
+
 ## Environment
 
 Copy `.env.example` → `.env` before running:
