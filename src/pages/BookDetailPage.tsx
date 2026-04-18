@@ -244,8 +244,9 @@ export function BookDetailPage() {
           {authors && <p className={styles.author}>{authors}</p>}
           {book.series_name && (
             <p className={styles.series}>
+              <span className={styles.seriesLabel}>Series</span>
               {book.series_name}
-              {book.series_number != null ? ` #${book.series_number}` : ''}
+              {book.series_number != null ? ` · #${book.series_number}` : ''}
             </p>
           )}
 
