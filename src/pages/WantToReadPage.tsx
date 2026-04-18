@@ -2,37 +2,33 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
 import { useWantToRead } from '@/hooks/useWantToRead'
-import { removeFromWantToRead } from '@/services/collections'
-import { addToLibrary } from '@/services/userBooks'
-import { useToast } from '@/contexts/ToastContext'
 import styles from './WantToReadPage.module.css'
 import pageStyles from './Page.module.css'
 
 export function WantToReadPage() {
-  const { items, loading, error, refetch } = useWantToRead()
-  const { showToast } = useToast()
+  const { items, loading, error } = useWantToRead()
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  async function handleMoveToLibrary(bookId: string, collectionBookId: string) {
-    try {
-      await addToLibrary(bookId)
-      await removeFromWantToRead(collectionBookId)
-      showToast('Moved to library')
-      refetch()
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Could not move book', 'error')
-    }
-  }
-
-  async function handleRemove(collectionBookId: string) {
-    try {
-      await removeFromWantToRead(collectionBookId)
-      showToast('Removed')
-      refetch()
-    } catch {
-      showToast('Could not remove book', 'error')
-    }
+  function handleItemClick(item: typeof items[number]) {
+    navigate('/books/preview', {
+      state: {
+        book: {
+          title: item.book.title,
+          subtitle: null,
+          authors: item.book.authors,
+          coverUrl: item.book.cover_url,
+          olKey: item.book.open_library_key,
+          isbn13: item.book.isbn_13,
+          isbn10: item.book.isbn_10,
+          publishYear: null,
+          pageCount: item.book.page_count,
+          seriesName: item.book.series_name,
+        },
+        bookId: item.bookId,
+        wtrCollectionBookId: item.collectionBookId,
+      },
+    })
   }
 
   return (
@@ -63,32 +59,22 @@ export function WantToReadPage() {
       ) : (
         <ul className={pageStyles.bookList}>
           {items.map(item => (
-            <li key={item.collectionBookId} className={styles.item}>
-              <BookCover url={item.book.cover_url} title={item.book.title} size="md" />
-              <div className={styles.info}>
-                <p className={styles.title}>{item.book.title}</p>
-                {item.book.authors.length > 0 && (
-                  <p className={styles.author}>{item.book.authors.slice(0, 2).join(', ')}</p>
-                )}
-                {item.book.series_name && (
-                  <p className={styles.series}>{item.book.series_name}</p>
-                )}
-                <div className={styles.actions}>
-                  <button
-                    className="btn btn-primary"
-                    style={{ width: 'auto', fontSize: '0.8125rem', padding: '0.4rem 0.875rem' }}
-                    onClick={() => handleMoveToLibrary(item.bookId, item.collectionBookId)}
-                  >
-                    {t('wtr.startReading')}
-                  </button>
-                  <button
-                    className={styles.removeBtn}
-                    onClick={() => handleRemove(item.collectionBookId)}
-                  >
-                    {t('common.remove')}
-                  </button>
+            <li key={item.collectionBookId}>
+              <button
+                className={styles.item}
+                onClick={() => handleItemClick(item)}
+              >
+                <BookCover url={item.book.cover_url} title={item.book.title} size="md" />
+                <div className={styles.info}>
+                  <p className={styles.title}>{item.book.title}</p>
+                  {item.book.authors.length > 0 && (
+                    <p className={styles.author}>{item.book.authors.slice(0, 2).join(', ')}</p>
+                  )}
+                  {item.book.series_name && (
+                    <p className={styles.series}>{item.book.series_name}</p>
+                  )}
                 </div>
-              </div>
+              </button>
             </li>
           ))}
         </ul>

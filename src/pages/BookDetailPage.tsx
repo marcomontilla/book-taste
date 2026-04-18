@@ -398,10 +398,10 @@ export function BookDetailPage() {
       <IntelligencePanel userBook={userBook} completedBooks={completedBooks} />
 
       {/* Series books */}
-      {olDetails?.seriesKey && (book.series_name ?? olDetails.series) && (
+      {olDetails?.seriesKey && (
         <SeriesBooksSection
           seriesKey={olDetails.seriesKey}
-          seriesName={book.series_name ?? olDetails.series ?? ''}
+          seriesName={book.series_name ?? olDetails.series ?? 'Series'}
           currentOlKey={book.open_library_key ?? ''}
         />
       )}

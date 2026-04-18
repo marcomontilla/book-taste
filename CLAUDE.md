@@ -237,6 +237,19 @@ Always insert with `{ name, is_want_to_read: false }`. Migration 007 fixed the u
 **7. Mobile testing via ngrok**
 Google OAuth won't work with ngrok unless you add the ngrok URL to Supabase redirect URLs and Google OAuth authorized URIs each session (URL changes on restart). Use the Vercel production URL for real testing instead.
 
+## Book discovery flow
+
+**Search / any list → click → preview → add action → full detail**
+
+- Clicking a book from search results or Want to Read navigates to `/books/preview` with the `BookSearchResult` (or equivalent) passed as router state.
+- **Library books** go directly to `/books/:id` (no preview step — already in library).
+- `BookPreviewPage` (`src/pages/BookPreviewPage.tsx`) fetches OL details on mount (description, rating, subjects) and shows two action buttons:
+  - Normal book: "Add to Library" → upserts + adds → navigates to `/books/{userBookId}`; "Want to Read" → upserts + saves → goes back
+  - WTR book (state has `wtrCollectionBookId`): "Start Reading" → adds to library + removes from WTR → navigates to detail; "Remove from Want to Read" → removes → goes back
+- WTR items already have a DB `bookId` in state — `upsertBook` is skipped, only `addToLibrary` is called.
+- `SearchResultCard` is now a pure navigation button (no inline add buttons).
+- `/books/preview` must be declared **before** `/books/:id` in the router so it isn't caught by the dynamic segment.
+
 ## Routes
 
 | Path | Component | Notes |
@@ -245,10 +258,11 @@ Google OAuth won't work with ngrok unless you add the ngrok URL to Supabase redi
 | `/signup` | `SignUpPage` | Public |
 | `/auth/callback` | `AuthCallbackPage` | OAuth redirect handler |
 | `/library` | `LibraryPage` | Filter: all / reading / completed |
+| `/books/preview` | `BookPreviewPage` | Book preview before adding; state: `{ book: BookSearchResult, bookId?, wtrCollectionBookId? }` |
 | `/books/:id` | `BookDetailPage` | `:id` is `user_book.id`, not `book.id` |
-| `/want-to-read` | `WantToReadPage` | `collection_books` list, not `user_books` |
+| `/want-to-read` | `WantToReadPage` | `collection_books` list — items navigate to preview |
 | `/collections` | `CollectionsPage` | Create / rename / delete collections |
 | `/collections/:id` | `CollectionDetailPage` | Add books from library, rename, remove books |
-| `/search` | `SearchPage` | OL search → add to library or WTR; accepts `?q=` param |
+| `/search` | `SearchPage` | OL search → click card → preview; accepts `?q=` param |
 | `/scan` | `ScanPage` | Barcode scanner → ISBN lookup → add to library |
 | `/settings` | `SettingsPage` | Theme (light/dark/system), language (EN/ES), sign out |

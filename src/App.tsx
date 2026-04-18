@@ -13,6 +13,7 @@ import { CollectionsPage } from '@/pages/CollectionsPage'
 import { CollectionDetailPage } from '@/pages/CollectionDetailPage'
 import { SearchPage } from '@/pages/SearchPage'
 import { BookDetailPage } from '@/pages/BookDetailPage'
+import { BookPreviewPage } from '@/pages/BookPreviewPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import ScanPage from '@/pages/ScanPage'
 
@@ -35,6 +36,7 @@ export default function App() {
               <Route path="/collections"         element={<CollectionsPage />} />
               <Route path="/collections/:id"     element={<CollectionDetailPage />} />
               <Route path="/search"              element={<SearchPage />} />
+              <Route path="/books/preview"        element={<BookPreviewPage />} />
               <Route path="/books/:id"           element={<BookDetailPage />} />
               <Route path="/settings"            element={<SettingsPage />} />
               <Route path="/scan"               element={<ScanPage />} />
