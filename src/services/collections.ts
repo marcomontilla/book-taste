@@ -100,7 +100,7 @@ export async function getCollectionWithBooks(collectionId: string) {
 export async function createCollection(name: string) {
   const { data, error } = await supabase
     .from('collections')
-    .insert({ name })
+    .insert({ name, is_want_to_read: false })
     .select()
     .single()
   if (error) throw error
