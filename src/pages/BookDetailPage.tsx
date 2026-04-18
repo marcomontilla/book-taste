@@ -30,6 +30,33 @@ function formatCount(n: number): string {
   return String(n)
 }
 
+// OL subjects include internal noise like "Serie:Percy_Jackson_and_the_Olympians",
+// "nyt:series_books", "Accessible book", etc. Strip, normalize, deduplicate.
+function normalizeSubjects(raw: string[]): string[] {
+  const seen = new Set<string>()
+  return raw
+    .filter(s => {
+      if (s.length < 3 || s.length > 45) return false
+      if (s.includes('_')) return false                            // internal OL keys
+      if (/^[A-Za-z]+:[A-Za-z]/i.test(s)) return false           // Key:Value pattern
+      if (/^(accessible|protected|internet archive|in library|overdrive|nyt\b)/i.test(s)) return false
+      return true
+    })
+    .map(s =>
+      s
+        .split(' ')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' '),
+    )
+    .filter(s => {
+      const key = s.toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .slice(0, 6)
+}
+
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -171,10 +198,7 @@ export function BookDetailPage() {
   const authors = book.authors.join(', ')
   const largeCoverUrl = book.cover_url?.replace(/-M\.jpg$/, '-L.jpg') ?? book.cover_url
 
-  // Subjects: deduplicate and limit; skip overly generic tags
-  const subjects = olDetails?.subjects
-    .filter(s => s.length < 60)
-    .slice(0, 6) ?? []
+  const subjects = normalizeSubjects(olDetails?.subjects ?? [])
 
   const showEbook =
     olDetails?.ebookAccess &&
