@@ -78,6 +78,23 @@ export interface OLSearchDoc {
   isbn?: string[]
   number_of_pages_median?: number
   series?: string[]
+  // enrichment fields (present when requested via fields param)
+  ratings_average?: number
+  ratings_count?: number
+  publisher?: string[]
+  language?: string[]
+  subject?: string[]
+  ebook_access?: string
+}
+
+export interface OLBookDetails {
+  ratingsAverage: number | null
+  ratingsCount: number | null
+  publishers: string[]
+  languages: string[]
+  subjects: string[]
+  firstPublishYear: number | null
+  ebookAccess: string | null
 }
 
 // Normalised result ready for display + upsert

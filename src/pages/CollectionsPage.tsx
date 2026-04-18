@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useCollections } from '@/hooks/useCollections'
-import { createCollection, deleteCollection } from '@/services/collections'
+import { createCollection, deleteCollection, renameCollection } from '@/services/collections'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/contexts/ToastContext'
 import styles from './CollectionsPage.module.css'
@@ -13,9 +14,16 @@ export function CollectionsPage() {
   const { showToast } = useToast()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [newName, setNewName]     = useState('')
-  const [creating, setCreating]   = useState(false)
+
+  // Create
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newName, setNewName]       = useState('')
+  const [creating, setCreating]     = useState(false)
+
+  // Rename
+  const [renameId, setRenameId]     = useState<string | null>(null)
+  const [renameName, setRenameName] = useState('')
+  const [renaming, setRenaming]     = useState(false)
 
   async function handleCreate() {
     const name = newName.trim()
@@ -23,9 +31,9 @@ export function CollectionsPage() {
     setCreating(true)
     try {
       await createCollection(name)
-      showToast(t('collections.title') + ' ' + t('common.create').toLowerCase() + 'd')
+      showToast(t('collections.created'))
       setNewName('')
-      setModalOpen(false)
+      setCreateOpen(false)
       refetch()
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Could not create collection', 'error')
@@ -34,11 +42,33 @@ export function CollectionsPage() {
     }
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!window.confirm(`Delete "${name}"? Books will not be deleted.`)) return
+  function openRename(id: string, currentName: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    setRenameId(id)
+    setRenameName(currentName)
+  }
+
+  async function handleRename() {
+    if (!renameId || !renameName.trim()) return
+    setRenaming(true)
+    try {
+      await renameCollection(renameId, renameName.trim())
+      showToast(t('collections.renamed'))
+      setRenameId(null)
+      refetch()
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Could not rename', 'error')
+    } finally {
+      setRenaming(false)
+    }
+  }
+
+  async function handleDelete(id: string, name: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!window.confirm(`${t('collections.confirmDelete', { name })}`)) return
     try {
       await deleteCollection(id)
-      showToast('Collection deleted')
+      showToast(t('collections.deleted'))
       refetch()
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Could not delete', 'error')
@@ -52,7 +82,7 @@ export function CollectionsPage() {
         <button
           className="btn btn-primary"
           style={{ width: 'auto' }}
-          onClick={() => setModalOpen(true)}
+          onClick={() => setCreateOpen(true)}
         >
           {t('collections.newBtn')}
         </button>
@@ -79,8 +109,7 @@ export function CollectionsPage() {
                   className={styles.cardContent}
                   onClick={() => navigate(`/collections/${c.id}`)}
                 >
-                  <span className={styles.collectionIcon}>🗂</span>
-                  <div>
+                  <div className={styles.cardMeta}>
                     <p className={styles.collectionName}>{c.name}</p>
                     <p className={styles.collectionCount}>
                       {t('collections.bookCount', { count: c.bookCount })}
@@ -88,11 +117,20 @@ export function CollectionsPage() {
                   </div>
                 </button>
                 <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(c.id, c.name)}
-                  title={t('common.delete')}
+                  className={styles.actionBtn}
+                  onClick={e => openRename(c.id, c.name, e)}
+                  title={t('common.rename')}
+                  aria-label={t('common.rename')}
                 >
-                  ✕
+                  <Pencil size={14} strokeWidth={2} />
+                </button>
+                <button
+                  className={[styles.actionBtn, styles.deleteBtn].join(' ')}
+                  onClick={e => handleDelete(c.id, c.name, e)}
+                  title={t('common.delete')}
+                  aria-label={t('common.delete')}
+                >
+                  <Trash2 size={14} strokeWidth={2} />
                 </button>
               </div>
             </li>
@@ -100,9 +138,10 @@ export function CollectionsPage() {
         </ul>
       )}
 
+      {/* Create modal */}
       <Modal
-        isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); setNewName('') }}
+        isOpen={createOpen}
+        onClose={() => { setCreateOpen(false); setNewName('') }}
         title={t('collections.newModal')}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -125,6 +164,31 @@ export function CollectionsPage() {
             disabled={creating || !newName.trim()}
           >
             {creating ? t('common.creating') : t('common.create')}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Rename modal */}
+      <Modal
+        isOpen={renameId !== null}
+        onClose={() => setRenameId(null)}
+        title={t('collections.rename')}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <input
+            type="text"
+            className="form-input"
+            value={renameName}
+            onChange={e => setRenameName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleRename() }}
+            autoFocus
+          />
+          <button
+            className="btn btn-primary"
+            onClick={handleRename}
+            disabled={renaming || !renameName.trim()}
+          >
+            {renaming ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </Modal>

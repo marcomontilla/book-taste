@@ -45,12 +45,22 @@
     "progress": "Reading Progress",
     "markCompleted": "Mark as completed",
     "completed": "Completed ✓",
+    "markedCompleted": "Marked as completed",
+    "movedToReading": "Moved back to reading",
     "currentPage": "Current page",
     "of": "of",
+    "pages": "pages",
     "about": "About",
     "collections": "Collections",
+    "noCollections": "No collections yet — create one in Collections.",
     "removeFromLibrary": "Remove from library",
-    "confirmRemove": "Remove this book from your library?"
+    "confirmRemove": "Remove this book from your library?",
+    "zoomCover": "View cover",
+    "firstPublished": "Published",
+    "ratings": "ratings",
+    "categories": "Categories",
+    "ebookAvailable": "Read on Open Library",
+    "moreByAuthor": "More by {{author}}"
   },
   "collections": {
     "title": "Collections",
@@ -60,9 +70,19 @@
     "nameLabel": "Name",
     "rename": "Rename collection",
     "backLink": "← Collections",
+    "created": "Collection created",
+    "renamed": "Collection renamed",
+    "deleted": "Collection deleted",
+    "confirmDelete": "Delete \"{{name}}\"? Books will not be deleted.",
+    "addBooks": "Add books",
+    "addBooksTitle": "Add from library",
+    "searchLibrary": "Search your library…",
+    "alreadyAdded": "✓ Added",
+    "noSearchResults": "No matching books",
+    "libraryEmpty": "Your library is empty",
     "detailEmpty": {
       "title": "No books yet",
-      "body": "Add books from their detail page."
+      "body": "Add books from your library using the button above."
     },
     "empty": {
       "title": "No collections yet",

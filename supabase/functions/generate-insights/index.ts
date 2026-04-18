@@ -71,14 +71,18 @@ Reply with ONLY a valid JSON object — no markdown, no commentary:
   "like_reason": "2-3 sentences on why this specific reader would enjoy this book based on their history. Be specific and personal.",
   "dislike_reason": "1-2 sentences on what might not work for them, written as honest guidance not criticism.",
   "similar": [
-    { "title": "Book Title", "author": "Author Name", "reason": "One sentence on the connection." },
-    { "title": "Book Title", "author": "Author Name", "reason": "One sentence on the connection." },
-    { "title": "Book Title", "author": "Author Name", "reason": "One sentence on the connection." }
+    { "title": "Book Title", "author": "Author Name", "reason": "One sentence on the connection to this book." },
+    { "title": "Book Title", "author": "Author Name", "reason": "One sentence on the connection to this book." },
+    { "title": "Book Title", "author": "Author Name", "reason": "One sentence on the connection to this book." }
   ],
   "blind_side": { "title": "Book Title", "author": "Author Name", "reason": "One sentence on why this different genre pick might still resonate." }
 }
 
-Rules: similar must have exactly 3 well-known books. blind_side must be from a clearly different genre. All text concise and mobile-friendly.`
+Rules:
+- "similar" must contain exactly 3 well-known books that are genuinely similar to "${book.title}" in genre, themes, and writing style. Base your picks on THIS BOOK ITSELF — its setting, tone, protagonist type, themes. Do NOT pick books based on the reader's history; use the reader's history ONLY to personalise the "reason" field.
+- "blind_side" must be from a clearly different genre than "${book.title}".
+- "like_reason" and "dislike_reason" should reference the reader's reading history specifically.
+- All text concise and mobile-friendly.`
 }
 
 serve(async (req: Request) => {

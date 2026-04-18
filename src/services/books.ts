@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { BookSearchResult, OLSearchDoc } from '@/types'
+import type { Book, BookSearchResult, OLBookDetails, OLSearchDoc } from '@/types'
 
 const OL_SEARCH = 'https://openlibrary.org/search.json'
 const OL_COVERS = 'https://covers.openlibrary.org/b/id'
@@ -112,6 +112,70 @@ export async function lookupByIsbn(isbn: string): Promise<BookSearchResult | nul
     return results[0] ?? null
   } catch {
     return null
+  }
+}
+
+export async function fetchOLDetails(
+  book: Pick<Book, 'title' | 'authors' | 'isbn_13' | 'isbn_10'>,
+): Promise<OLBookDetails> {
+  const params = new URLSearchParams({
+    limit: '1',
+    fields: 'ratings_average,ratings_count,publisher,language,subject,ebook_access,first_publish_year',
+  })
+  const isbn = book.isbn_13 ?? book.isbn_10
+  if (isbn) {
+    params.set('q', isbn)
+  } else {
+    params.set('title', book.title)
+    if (book.authors[0]) params.set('author', book.authors[0])
+  }
+  const res = await fetch(`${OL_SEARCH}?${params}`)
+  if (!res.ok) throw new Error('OL lookup failed')
+  const json = await res.json()
+  const doc: OLSearchDoc = json.docs?.[0] ?? {}
+  return {
+    ratingsAverage:
+      typeof doc.ratings_average === 'number'
+        ? Math.round(doc.ratings_average * 10) / 10
+        : null,
+    ratingsCount: doc.ratings_count ?? null,
+    publishers: Array.isArray(doc.publisher)
+      ? [...new Set<string>(doc.publisher)].slice(0, 2)
+      : [],
+    languages: Array.isArray(doc.language) ? doc.language.slice(0, 4) : [],
+    subjects: Array.isArray(doc.subject) ? doc.subject.slice(0, 10) : [],
+    firstPublishYear: doc.first_publish_year ?? null,
+    ebookAccess: doc.ebook_access ?? null,
+  }
+}
+
+export async function fetchAuthorWorks(
+  authorName: string,
+  excludeTitle: string,
+): Promise<BookSearchResult[]> {
+  const params = new URLSearchParams({
+    author: authorName,
+    fields: 'key,title,subtitle,cover_i,first_publish_year,author_name,number_of_pages_median,isbn,series',
+    sort: 'editions',
+    limit: '14',
+  })
+  try {
+    const res = await fetch(`${OL_SEARCH}?${params}`)
+    if (!res.ok) return []
+    const json = await res.json()
+    const seen = new Set<string>()
+    return (json.docs as OLSearchDoc[])
+      .map(normalizeDoc)
+      .filter(b => {
+        const key = b.title.toLowerCase()
+        if (key === excludeTitle.toLowerCase()) return false
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .slice(0, 8)
+  } catch {
+    return []
   }
 }
 

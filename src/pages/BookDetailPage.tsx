@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { X } from 'lucide-react'
 import { BookCover } from '@/components/books/BookCover'
+import { AuthorWorksSection } from '@/components/books/AuthorWorksSection'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { NoteList } from '@/components/notes/NoteList'
 import { IntelligencePanel } from '@/components/intelligence/IntelligencePanel'
@@ -18,9 +20,15 @@ import {
   addBookToCollection,
   removeBookFromCollection,
 } from '@/services/collections'
+import { fetchOLDetails } from '@/services/books'
 import { useToast } from '@/contexts/ToastContext'
-import type { BookCollectionStatus } from '@/types'
+import type { BookCollectionStatus, OLBookDetails } from '@/types'
 import styles from './BookDetailPage.module.css'
+
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`
+  return String(n)
+}
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -29,22 +37,18 @@ export function BookDetailPage() {
   const { t } = useTranslation()
   const { userBook, setUserBook, loading, error } = useUserBook(id!)
 
-  // Progress (auto-save)
   const [currentPage, setCurrentPage] = useState(0)
   const debouncedPage = useDebounce(currentPage, 1000)
 
-  // Collections membership
   const [collectionStatus, setCollectionStatus] = useState<BookCollectionStatus[]>([])
-
-  // Completed books for intelligence panel
   const [completedBooks, setCompletedBooks] = useState<{ title: string; authors: string[] }[]>([])
+  const [olDetails, setOlDetails] = useState<OLBookDetails | null>(null)
+  const [coverZoomed, setCoverZoomed] = useState(false)
 
-  // Sync local state from loaded data
   useEffect(() => {
     if (userBook) setCurrentPage(userBook.current_page)
   }, [userBook])
 
-  // Load collection membership
   useEffect(() => {
     if (!userBook) return
     getCollectionsForBook(userBook.book_id)
@@ -52,7 +56,6 @@ export function BookDetailPage() {
       .catch(() => {})
   }, [userBook])
 
-  // Load completed books for intelligence
   useEffect(() => {
     getLibrary()
       .then(books => {
@@ -65,7 +68,19 @@ export function BookDetailPage() {
       .catch(() => {})
   }, [])
 
-  // Auto-save progress
+  useEffect(() => {
+    if (!userBook) return
+    const b = userBook.book
+    fetchOLDetails({
+      title: b.title,
+      authors: b.authors,
+      isbn_13: b.isbn_13,
+      isbn_10: b.isbn_10,
+    })
+      .then(setOlDetails)
+      .catch(() => setOlDetails(null))
+  }, [userBook])
+
   useEffect(() => {
     if (!userBook || debouncedPage === userBook.current_page) return
     updateProgress(userBook.id, debouncedPage).catch(() =>
@@ -73,6 +88,14 @@ export function BookDetailPage() {
     )
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedPage])
+
+  // Close lightbox on Escape
+  useEffect(() => {
+    if (!coverZoomed) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setCoverZoomed(false) }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [coverZoomed])
 
   const handleCompleteToggle = useCallback(async (checked: boolean) => {
     if (!userBook) return
@@ -87,11 +110,11 @@ export function BookDetailPage() {
             }
           : prev,
       )
-      showToast(checked ? 'Marked as completed' : 'Moved back to reading')
+      showToast(checked ? t('book.markedCompleted') : t('book.movedToReading'))
     } catch {
       showToast('Could not update status', 'error')
     }
-  }, [userBook, setUserBook, showToast])
+  }, [userBook, setUserBook, showToast, t])
 
   const handleRemoveFromLibrary = useCallback(async () => {
     if (!userBook) return
@@ -103,7 +126,7 @@ export function BookDetailPage() {
     } catch {
       showToast('Could not remove book', 'error')
     }
-  }, [userBook, navigate, showToast])
+  }, [userBook, navigate, showToast, t])
 
   const handleCollectionToggle = useCallback(async (status: BookCollectionStatus) => {
     if (!userBook) return
@@ -115,7 +138,6 @@ export function BookDetailPage() {
         )
       } else {
         await addBookToCollection(status.id, userBook.book_id)
-        // Reload to get new collectionBookId
         const fresh = await getCollectionsForBook(userBook.book_id)
         setCollectionStatus(fresh)
       }
@@ -147,6 +169,17 @@ export function BookDetailPage() {
   const { book, status } = userBook
   const effectiveTotal = userBook.total_pages ?? book.page_count
   const authors = book.authors.join(', ')
+  const largeCoverUrl = book.cover_url?.replace(/-M\.jpg$/, '-L.jpg') ?? book.cover_url
+
+  // Subjects: deduplicate and limit; skip overly generic tags
+  const subjects = olDetails?.subjects
+    .filter(s => s.length < 60)
+    .slice(0, 6) ?? []
+
+  const showEbook =
+    olDetails?.ebookAccess &&
+    olDetails.ebookAccess !== 'no_ebook' &&
+    book.open_library_key
 
   return (
     <div className={styles.page}>
@@ -155,9 +188,32 @@ export function BookDetailPage() {
         ← {t('common.back')}
       </button>
 
+      {/* Cover lightbox */}
+      {coverZoomed && largeCoverUrl && (
+        <div className={styles.lightbox} onClick={() => setCoverZoomed(false)}>
+          <button className={styles.lightboxClose} onClick={() => setCoverZoomed(false)} aria-label={t('common.done')}>
+            <X size={22} strokeWidth={2} />
+          </button>
+          <img
+            src={largeCoverUrl}
+            alt={`Cover of ${book.title}`}
+            className={styles.lightboxImg}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       {/* Hero */}
       <div className={styles.hero}>
-        <BookCover url={book.cover_url} title={book.title} size="lg" />
+        <button
+          className={styles.coverBtn}
+          onClick={() => book.cover_url && setCoverZoomed(true)}
+          aria-label={t('book.zoomCover')}
+          title={t('book.zoomCover')}
+        >
+          <BookCover url={book.cover_url} title={book.title} size="lg" />
+        </button>
+
         <div className={styles.heroInfo}>
           <h1 className={styles.title}>{book.title}</h1>
           {book.subtitle && <p className={styles.subtitle}>{book.subtitle}</p>}
@@ -168,11 +224,54 @@ export function BookDetailPage() {
               {book.series_number != null ? ` #${book.series_number}` : ''}
             </p>
           )}
-          {book.page_count && (
-            <p className={styles.meta}>{book.page_count} pages</p>
+
+          <div className={styles.metaRow}>
+            {(olDetails?.firstPublishYear ?? book.page_count) && (
+              <>
+                {olDetails?.firstPublishYear && (
+                  <span className={styles.metaItem}>{olDetails.firstPublishYear}</span>
+                )}
+                {book.page_count && (
+                  <span className={styles.metaItem}>{book.page_count} {t('book.pages')}</span>
+                )}
+              </>
+            )}
+          </div>
+
+          {olDetails?.ratingsAverage && (
+            <p className={styles.rating}>
+              ★ {olDetails.ratingsAverage}
+              {olDetails.ratingsCount
+                ? <span className={styles.ratingCount}> · {formatCount(olDetails.ratingsCount)} {t('book.ratings')}</span>
+                : null}
+            </p>
+          )}
+
+          {olDetails?.publishers && olDetails.publishers.length > 0 && (
+            <p className={styles.meta}>{olDetails.publishers[0]}</p>
+          )}
+
+          {showEbook && (
+            <a
+              href={`https://openlibrary.org${book.open_library_key}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.ebookBadge}
+            >
+              {t('book.ebookAvailable')}
+            </a>
           )}
         </div>
       </div>
+
+      {/* Categories */}
+      {subjects.length > 0 && (
+        <div className={styles.subjects}>
+          {subjects.map(s => (
+            <span key={s} className={styles.subject}>{s}</span>
+          ))}
+        </div>
+      )}
 
       {/* Progress */}
       <section className={styles.section}>
@@ -189,9 +288,25 @@ export function BookDetailPage() {
         </label>
 
         <div className={status === 'completed' ? styles.progressDisabled : undefined}>
-        {effectiveTotal ? (
-          <div className={styles.progressArea}>
-            <ProgressBar current={currentPage} total={effectiveTotal} showLabel />
+          {effectiveTotal ? (
+            <div className={styles.progressArea}>
+              <ProgressBar current={currentPage} total={effectiveTotal} showLabel />
+              <div className={styles.pageInputRow}>
+                <label className={styles.pageLabel} htmlFor="current-page">{t('book.currentPage')}</label>
+                <input
+                  id="current-page"
+                  type="number"
+                  className={`form-input ${styles.pageInput}`}
+                  value={currentPage}
+                  min={0}
+                  max={effectiveTotal}
+                  disabled={status === 'completed'}
+                  onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
+                />
+                <span className={styles.pageMeta}>{t('book.of')} {effectiveTotal}</span>
+              </div>
+            </div>
+          ) : (
             <div className={styles.pageInputRow}>
               <label className={styles.pageLabel} htmlFor="current-page">{t('book.currentPage')}</label>
               <input
@@ -200,27 +315,11 @@ export function BookDetailPage() {
                 className={`form-input ${styles.pageInput}`}
                 value={currentPage}
                 min={0}
-                max={effectiveTotal}
                 disabled={status === 'completed'}
                 onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
               />
-              <span className={styles.pageMeta}>{t('book.of')} {effectiveTotal}</span>
             </div>
-          </div>
-        ) : (
-          <div className={styles.pageInputRow}>
-            <label className={styles.pageLabel} htmlFor="current-page">Current page</label>
-            <input
-              id="current-page"
-              type="number"
-              className={`form-input ${styles.pageInput}`}
-              value={currentPage}
-              min={0}
-              disabled={status === 'completed'}
-              onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
-            />
-          </div>
-        )}
+          )}
         </div>
       </section>
 
@@ -233,9 +332,11 @@ export function BookDetailPage() {
       )}
 
       {/* Collections */}
-      {collectionStatus.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t('book.collections')}</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('book.collections')}</h2>
+        {collectionStatus.length === 0 ? (
+          <p className={styles.collectionsHint}>{t('book.noCollections')}</p>
+        ) : (
           <div className={styles.collectionPills}>
             {collectionStatus.map(s => (
               <button
@@ -250,8 +351,8 @@ export function BookDetailPage() {
               </button>
             ))}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* Notes */}
       <section className={styles.section}>
@@ -262,6 +363,11 @@ export function BookDetailPage() {
       <section className={styles.section}>
         <IntelligencePanel userBook={userBook} completedBooks={completedBooks} />
       </section>
+
+      {/* More by author */}
+      {book.authors[0] && (
+        <AuthorWorksSection authorName={book.authors[0]} excludeTitle={book.title} />
+      )}
 
       {/* Danger zone */}
       <section className={styles.dangerZone}>

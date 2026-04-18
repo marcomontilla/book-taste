@@ -45,12 +45,22 @@
     "progress": "Progreso de Lectura",
     "markCompleted": "Marcar como completado",
     "completed": "Completado ✓",
+    "markedCompleted": "Marcado como completado",
+    "movedToReading": "Vuelto a lectura",
     "currentPage": "Página actual",
     "of": "de",
+    "pages": "páginas",
     "about": "Acerca de",
     "collections": "Colecciones",
+    "noCollections": "Sin colecciones aún — crea una en Colecciones.",
     "removeFromLibrary": "Quitar de la biblioteca",
-    "confirmRemove": "¿Quitar este libro de tu biblioteca?"
+    "confirmRemove": "¿Quitar este libro de tu biblioteca?",
+    "zoomCover": "Ver portada",
+    "firstPublished": "Publicado",
+    "ratings": "valoraciones",
+    "categories": "Categorías",
+    "ebookAvailable": "Leer en Open Library",
+    "moreByAuthor": "Más de {{author}}"
   },
   "collections": {
     "title": "Colecciones",
@@ -60,9 +70,19 @@
     "nameLabel": "Nombre",
     "rename": "Renombrar colección",
     "backLink": "← Colecciones",
+    "created": "Colección creada",
+    "renamed": "Colección renombrada",
+    "deleted": "Colección eliminada",
+    "confirmDelete": "¿Eliminar \"{{name}}\"? Los libros no serán eliminados.",
+    "addBooks": "Añadir libros",
+    "addBooksTitle": "Añadir desde biblioteca",
+    "searchLibrary": "Buscar en tu biblioteca…",
+    "alreadyAdded": "✓ Añadido",
+    "noSearchResults": "Sin resultados",
+    "libraryEmpty": "Tu biblioteca está vacía",
     "detailEmpty": {
       "title": "Sin libros aún",
-      "body": "Añade libros desde su página de detalle."
+      "body": "Añade libros desde tu biblioteca usando el botón de arriba."
     },
     "empty": {
       "title": "Sin colecciones aún",

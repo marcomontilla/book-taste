@@ -1,7 +1,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   max-width: 680px;
 }
 
@@ -18,12 +18,62 @@
 
 .backBtn:hover { color: var(--color-primary); }
 
-/* ── Hero ─────────────────────────────────────────────────── */
+/* ── Cover lightbox ───────────────────────────────────────────── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightboxImg {
+  max-width: min(90vw, 420px);
+  max-height: 85dvh;
+  border-radius: 0.375rem;
+  object-fit: contain;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+.lightboxClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lightboxClose:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Hero ─────────────────────────────────────────────────────── */
 .hero {
   display: flex;
   gap: 1.25rem;
   align-items: flex-start;
 }
+
+.coverBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.coverBtn:hover { opacity: 0.85; }
 
 .heroInfo {
   flex: 1;
@@ -57,12 +107,76 @@
   font-style: italic;
 }
 
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+
+.metaItem {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.metaItem + .metaItem::before {
+  content: '·';
+  margin-right: 0.5rem;
+}
+
 .meta {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
 
-/* ── Sections ─────────────────────────────────────────────── */
+.rating {
+  font-size: 0.875rem;
+  color: var(--color-warning);
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.ratingCount {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.ebookBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.625rem;
+  border-radius: 1rem;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  text-decoration: none;
+  margin-top: 0.2rem;
+  border: 1px solid var(--color-primary);
+  width: fit-content;
+  transition: background 0.15s;
+}
+
+.ebookBadge:hover { background: var(--color-primary); color: #fff; text-decoration: none; }
+
+/* ── Categories / subjects ────────────────────────────────────── */
+.subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.subject {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.625rem;
+  border-radius: 1rem;
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+/* ── Sections ─────────────────────────────────────────────────── */
 .section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -81,7 +195,7 @@
   color: var(--color-text-muted);
 }
 
-/* ── Progress ─────────────────────────────────────────────── */
+/* ── Progress ─────────────────────────────────────────────────── */
 .completedRow {
   display: flex;
   align-items: center;
@@ -128,21 +242,25 @@
   color: var(--color-text-muted);
 }
 
-/* ── Progress disabled state ──────────────────────────────── */
 .progressDisabled {
   opacity: 0.45;
   pointer-events: none;
   user-select: none;
 }
 
-/* ── Description ──────────────────────────────────────────── */
+/* ── Description ──────────────────────────────────────────────── */
 .description {
   font-size: 0.9rem;
   line-height: 1.65;
   color: var(--color-text);
 }
 
-/* ── Collections ──────────────────────────────────────────── */
+/* ── Collections ──────────────────────────────────────────────── */
+.collectionsHint {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
 .collectionPills {
   display: flex;
   flex-wrap: wrap;
@@ -172,7 +290,7 @@
   color: var(--color-primary);
 }
 
-/* ── Danger zone ──────────────────────────────────────────── */
+/* ── Danger zone ──────────────────────────────────────────────── */
 .dangerZone {
   padding-bottom: 1rem;
 }
@@ -190,7 +308,7 @@
 
 .removeBtn:hover { color: var(--color-danger); }
 
-/* ── Desktop: wider hero cover ────────────────────────────── */
+/* ── Desktop ──────────────────────────────────────────────────── */
 @media (min-width: 480px) {
   .title { font-size: 1.5rem; }
 }
