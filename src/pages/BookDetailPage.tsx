@@ -242,10 +242,10 @@ export function BookDetailPage() {
           <h1 className={styles.title}>{book.title}</h1>
           {book.subtitle && <p className={styles.subtitle}>{book.subtitle}</p>}
           {authors && <p className={styles.author}>{authors}</p>}
-          {book.series_name && (
+          {(book.series_name ?? olDetails?.series) && (
             <p className={styles.series}>
               <span className={styles.seriesLabel}>Series</span>
-              {book.series_name}
+              {book.series_name ?? olDetails?.series}
               {book.series_number != null ? ` · #${book.series_number}` : ''}
             </p>
           )}

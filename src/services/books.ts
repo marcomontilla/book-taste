@@ -120,7 +120,7 @@ export async function fetchOLDetails(
 ): Promise<OLBookDetails> {
   const params = new URLSearchParams({
     limit: '1',
-    fields: 'ratings_average,ratings_count,publisher,language,subject,ebook_access,first_publish_year',
+    fields: 'ratings_average,ratings_count,publisher,language,subject,ebook_access,first_publish_year,series',
   })
   const isbn = book.isbn_13 ?? book.isbn_10
   if (isbn) {
@@ -146,6 +146,7 @@ export async function fetchOLDetails(
     subjects: Array.isArray(doc.subject) ? doc.subject.slice(0, 10) : [],
     firstPublishYear: doc.first_publish_year ?? null,
     ebookAccess: doc.ebook_access ?? null,
+    series: doc.series?.[0] ?? null,
   }
 }
 

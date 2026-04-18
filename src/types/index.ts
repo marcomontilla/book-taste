@@ -95,6 +95,7 @@ export interface OLBookDetails {
   subjects: string[]
   firstPublishYear: number | null
   ebookAccess: string | null
+  series: string | null
 }
 
 // Normalised result ready for display + upsert
