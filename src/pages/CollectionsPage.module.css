@@ -52,5 +52,5 @@
 
 .deleteBtn:hover {
   color: var(--color-danger);
-  background: #fef2f2;
+  background: var(--color-danger-light);
 }

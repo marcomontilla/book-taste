@@ -13,6 +13,8 @@
   --color-danger-light:  #fef2f2;
   --color-success:       #16a34a;
   --color-success-light: #dcfce7;
+  --color-warning:       #b45309;
+  --color-warning-light: #fef9ec;
 
   --topbar-height:    3.5rem;
   --bottomnav-height: 3.75rem;
@@ -42,6 +44,8 @@
   --color-danger-light:  #2d1515;
   --color-success:       #4ade80;
   --color-success-light: #14261c;
+  --color-warning:       #f59e0b;
+  --color-warning-light: #2d1f08;
 }
 
 /* ── Reset ───────────────────────────────────────────────────── */

@@ -83,7 +83,7 @@
 }
 
 .done {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--color-success-light);
+  color: var(--color-success);
   border-color: transparent;
 }

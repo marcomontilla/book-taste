@@ -79,8 +79,8 @@
 /* ── Error state ─────────────────────────────────────────── */
 .errorBox {
   padding: 2rem 1.25rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--color-danger-light);
+  border: 1px solid var(--color-danger);
   border-radius: var(--radius);
   text-align: center;
 }

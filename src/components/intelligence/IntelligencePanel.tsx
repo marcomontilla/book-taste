@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n/index'
 import { useInsights } from '@/hooks/useInsights'
 import type { UserBookWithBook, RecommendationItem } from '@/types'
 import styles from './IntelligencePanel.module.css'
@@ -32,6 +33,7 @@ export function IntelligencePanel({ userBook, completedBooks }: Props) {
       },
       completedBooks,
       source: 'on_demand',
+      language: i18n.language,
     })
   }
 

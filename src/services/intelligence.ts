@@ -103,6 +103,7 @@ export interface GenerateOptions {
   book: BookContext
   completedBooks: CompletedBookContext[]
   source?: 'on_demand' | 'post_scan'
+  language?: string
 }
 
 export async function generateAndCacheInsights(
@@ -119,6 +120,7 @@ export async function generateAndCacheInsights(
         book: opts.book,
         completedBooks: opts.completedBooks,
         source,
+        language: opts.language ?? 'en',
       },
     },
   )

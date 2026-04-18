@@ -85,7 +85,7 @@
 }
 
 .reasonCardCaution {
-  background: #fef9ec;
+  background: var(--color-warning-light);
 }
 
 .reasonLabel {
@@ -98,7 +98,7 @@
 }
 
 .reasonCardCaution .reasonLabel {
-  color: #b45309;
+  color: var(--color-warning);
 }
 
 .reasonText {

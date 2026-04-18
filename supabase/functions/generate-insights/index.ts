@@ -30,6 +30,7 @@ interface RequestBody {
   book: BookInput
   completedBooks: CompletedBook[]
   source?: string
+  language?: string
 }
 
 interface RecommendationItem {
@@ -45,7 +46,10 @@ interface InsightsResponse {
   blind_side: RecommendationItem
 }
 
-function buildPrompt(book: BookInput, completedBooks: CompletedBook[]): string {
+function buildPrompt(book: BookInput, completedBooks: CompletedBook[], language: string): string {
+  const langInstruction = language === 'es'
+    ? 'Respond entirely in Spanish (Español). All text in the JSON values must be in Spanish.'
+    : 'Respond entirely in English.'
   const history = completedBooks.length > 0
     ? completedBooks
         .slice(0, 12)
@@ -53,7 +57,7 @@ function buildPrompt(book: BookInput, completedBooks: CompletedBook[]): string {
         .join('\n')
     : 'No reading history available yet.'
 
-  return `You are a thoughtful book advisor. Analyse this book and the reader's history to produce personalised insights.
+  return `You are a thoughtful book advisor. Analyse this book and the reader's history to produce personalised insights. ${langInstruction}
 
 CURRENT BOOK:
 Title: ${book.title}${book.subtitle ? `\nSubtitle: ${book.subtitle}` : ''}
@@ -92,7 +96,7 @@ serve(async (req: Request) => {
     }
 
     const body: RequestBody = await req.json()
-    const { book, completedBooks = [] } = body
+    const { book, completedBooks = [], language = 'en' } = body
 
     if (!book?.title) {
       return new Response(
@@ -101,7 +105,7 @@ serve(async (req: Request) => {
       )
     }
 
-    const prompt = buildPrompt(book, completedBooks)
+    const prompt = buildPrompt(book, completedBooks, language)
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

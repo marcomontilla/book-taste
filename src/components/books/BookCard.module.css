@@ -71,8 +71,8 @@
 .badge {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #16a34a;
-  background: #dcfce7;
+  color: var(--color-success);
+  background: var(--color-success-light);
   padding: 0.2rem 0.5rem;
   border-radius: 1rem;
   display: inline-block;
