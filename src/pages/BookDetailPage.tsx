@@ -103,6 +103,7 @@ export function BookDetailPage() {
       authors: b.authors,
       isbn_13: b.isbn_13,
       isbn_10: b.isbn_10,
+      open_library_key: b.open_library_key,
     })
       .then(setOlDetails)
       .catch(() => setOlDetails(null))
@@ -349,10 +350,10 @@ export function BookDetailPage() {
       </section>
 
       {/* Description */}
-      {book.description && (
+      {(book.description ?? olDetails?.description) && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>{t('book.about')}</h2>
-          <p className={styles.description}>{book.description}</p>
+          <p className={styles.description}>{book.description ?? olDetails?.description}</p>
         </section>
       )}
 

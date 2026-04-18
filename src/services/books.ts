@@ -116,7 +116,7 @@ export async function lookupByIsbn(isbn: string): Promise<BookSearchResult | nul
 }
 
 export async function fetchOLDetails(
-  book: Pick<Book, 'title' | 'authors' | 'isbn_13' | 'isbn_10'>,
+  book: Pick<Book, 'title' | 'authors' | 'isbn_13' | 'isbn_10' | 'open_library_key'>,
 ): Promise<OLBookDetails> {
   const params = new URLSearchParams({
     limit: '1',
@@ -129,10 +129,30 @@ export async function fetchOLDetails(
     params.set('title', book.title)
     if (book.authors[0]) params.set('author', book.authors[0])
   }
-  const res = await fetch(`${OL_SEARCH}?${params}`)
-  if (!res.ok) throw new Error('OL lookup failed')
-  const json = await res.json()
-  const doc: OLSearchDoc = json.docs?.[0] ?? {}
+
+  // Fetch search enrichment and works data (for description) in parallel
+  const [searchRes, worksRes] = await Promise.allSettled([
+    fetch(`${OL_SEARCH}?${params}`),
+    book.open_library_key
+      ? fetch(`https://openlibrary.org${book.open_library_key}.json`)
+      : Promise.resolve(null),
+  ])
+
+  const doc: OLSearchDoc =
+    searchRes.status === 'fulfilled' && searchRes.value.ok
+      ? ((await searchRes.value.json()).docs?.[0] ?? {})
+      : {}
+
+  let description: string | null = null
+  if (worksRes.status === 'fulfilled' && worksRes.value?.ok) {
+    try {
+      const works = await worksRes.value.json()
+      const raw = works.description
+      if (typeof raw === 'string') description = raw
+      else if (raw?.value) description = raw.value
+    } catch { /* ignore */ }
+  }
+
   return {
     ratingsAverage:
       typeof doc.ratings_average === 'number'
@@ -147,6 +167,7 @@ export async function fetchOLDetails(
     firstPublishYear: doc.first_publish_year ?? null,
     ebookAccess: doc.ebook_access ?? null,
     series: doc.series?.[0] ?? null,
+    description,
   }
 }
 

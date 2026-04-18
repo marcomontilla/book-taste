@@ -96,6 +96,7 @@ export interface OLBookDetails {
   firstPublishYear: number | null
   ebookAccess: string | null
   series: string | null
+  description: string | null
 }
 
 // Normalised result ready for display + upsert
