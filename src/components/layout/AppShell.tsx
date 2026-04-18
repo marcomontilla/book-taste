@@ -1,24 +1,23 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import {
+  BookOpen, Bookmark, FolderOpen, Settings2,
+  Search, ScanLine, User,
+} from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from './AppShell.module.css'
 
 export function AppShell() {
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const { t } = useTranslation()
   const navigate = useNavigate()
 
   const navItems = [
-    { to: '/library',      label: t('nav.library'),      icon: '📚' },
-    { to: '/want-to-read', label: t('nav.wantToRead'),   icon: '🔖' },
-    { to: '/collections',  label: t('nav.collections'),  icon: '🗂'  },
-    { to: '/settings',     label: t('nav.settings'),     icon: '⚙️' },
+    { to: '/library',      label: t('nav.library'),     Icon: BookOpen   },
+    { to: '/want-to-read', label: t('nav.wantToRead'),  Icon: Bookmark   },
+    { to: '/collections',  label: t('nav.collections'), Icon: FolderOpen },
+    { to: '/settings',     label: t('nav.settings'),    Icon: Settings2  },
   ]
-
-  async function handleSignOut() {
-    await signOut()
-    navigate('/login')
-  }
 
   return (
     <div className={styles.shell}>
@@ -31,7 +30,7 @@ export function AppShell() {
             title={t('nav.scan')}
             aria-label={t('nav.scan')}
           >
-            📷
+            <ScanLine size={20} strokeWidth={1.75} />
           </button>
           <button
             className={styles.iconBtn}
@@ -39,26 +38,31 @@ export function AppShell() {
             title={t('nav.search')}
             aria-label={t('nav.search')}
           >
-            🔍
+            <Search size={20} strokeWidth={1.75} />
           </button>
-          <button className={styles.avatarBtn} onClick={handleSignOut} title={t('settings.signOut')}>
-            {user?.email?.[0].toUpperCase() ?? '?'}
+          <button
+            className={styles.avatarBtn}
+            onClick={() => navigate('/settings')}
+            title={t('nav.settings')}
+            aria-label={t('nav.settings')}
+          >
+            {user?.email?.[0].toUpperCase() ?? <User size={14} />}
           </button>
         </div>
       </header>
 
       <div className={styles.body}>
         <nav className={styles.sidebar}>
-          {navItems.map(item => (
+          {navItems.map(({ to, label, Icon }) => (
             <NavLink
-              key={item.to}
-              to={item.to}
+              key={to}
+              to={to}
               className={({ isActive }) =>
                 [styles.navItem, isActive ? styles.navItemActive : ''].join(' ')
               }
             >
-              <span className={styles.navIcon}>{item.icon}</span>
-              <span className={styles.navLabel}>{item.label}</span>
+              <Icon size={18} strokeWidth={1.75} className={styles.navIcon} />
+              <span className={styles.navLabel}>{label}</span>
             </NavLink>
           ))}
           <NavLink
@@ -67,7 +71,7 @@ export function AppShell() {
               [styles.navItem, isActive ? styles.navItemActive : ''].join(' ')
             }
           >
-            <span className={styles.navIcon}>🔍</span>
+            <Search size={18} strokeWidth={1.75} className={styles.navIcon} />
             <span className={styles.navLabel}>{t('nav.search')}</span>
           </NavLink>
           <NavLink
@@ -76,7 +80,7 @@ export function AppShell() {
               [styles.navItem, isActive ? styles.navItemActive : ''].join(' ')
             }
           >
-            <span className={styles.navIcon}>📷</span>
+            <ScanLine size={18} strokeWidth={1.75} className={styles.navIcon} />
             <span className={styles.navLabel}>{t('nav.scan')}</span>
           </NavLink>
         </nav>
@@ -87,16 +91,16 @@ export function AppShell() {
       </div>
 
       <nav className={styles.bottomNav}>
-        {navItems.map(item => (
+        {navItems.map(({ to, label, Icon }) => (
           <NavLink
-            key={item.to}
-            to={item.to}
+            key={to}
+            to={to}
             className={({ isActive }) =>
               [styles.bottomNavItem, isActive ? styles.bottomNavItemActive : ''].join(' ')
             }
           >
-            <span className={styles.bottomNavIcon}>{item.icon}</span>
-            <span className={styles.bottomNavLabel}>{item.label}</span>
+            <Icon size={22} strokeWidth={1.75} className={styles.bottomNavIcon} />
+            <span className={styles.bottomNavLabel}>{label}</span>
           </NavLink>
         ))}
       </nav>

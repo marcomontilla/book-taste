@@ -35,15 +35,20 @@
 .iconBtn {
   background: none;
   border: none;
-  font-size: 1.125rem;
   cursor: pointer;
-  padding: 0.25rem 0.375rem;
+  padding: 0.375rem;
   border-radius: var(--radius-xs);
-  line-height: 1;
-  transition: background var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: background var(--transition), color var(--transition);
 }
 
-.iconBtn:hover { background: var(--color-bg); }
+.iconBtn:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
 
 .avatarBtn {
   width: 2rem;
@@ -102,7 +107,7 @@
   color: var(--color-primary);
 }
 
-.navIcon { font-size: 1.125rem; }
+.navIcon { flex-shrink: 0; }
 .navLabel { line-height: 1; }
 
 /* ── Main content ─────────────────────────── */
@@ -143,7 +148,7 @@
   color: var(--color-primary);
 }
 
-.bottomNavIcon { font-size: 1.25rem; line-height: 1; }
+.bottomNavIcon { flex-shrink: 0; }
 .bottomNavLabel { line-height: 1; }
 
 /* ── Breakpoints ──────────────────────────── */
