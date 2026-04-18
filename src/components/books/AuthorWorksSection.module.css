@@ -39,7 +39,16 @@
   gap: 0.3rem;
   flex-shrink: 0;
   width: 3rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 0.25rem;
+  transition: opacity 0.15s;
 }
+
+.workCard:hover { opacity: 0.75; }
 
 .workTitle {
   font-size: 0.625rem;

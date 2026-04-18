@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { BookCover } from './BookCover'
 import { fetchAuthorWorks } from '@/services/books'
 import type { BookSearchResult } from '@/types'
@@ -12,6 +13,7 @@ interface Props {
 
 export function AuthorWorksSection({ authorName, excludeTitle }: Props) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [works, setWorks] = useState<BookSearchResult[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -40,13 +42,21 @@ export function AuthorWorksSection({ authorName, excludeTitle }: Props) {
     <div className={styles.section}>
       <h2 className={styles.heading}>{t('book.moreByAuthor', { author: authorName })}</h2>
       <div className={styles.scrollRow}>
-        {works.map(w => (
-          <div key={w.olKey || w.title} className={styles.workCard}>
-            <BookCover url={w.coverUrl} title={w.title} size="sm" />
-            <p className={styles.workTitle}>{w.title}</p>
-            {w.publishYear && <p className={styles.workYear}>{w.publishYear}</p>}
-          </div>
-        ))}
+        {works.map(w => {
+          const q = encodeURIComponent(`${w.title} ${w.authors[0] ?? authorName}`)
+          return (
+            <button
+              key={w.olKey || w.title}
+              className={styles.workCard}
+              onClick={() => navigate(`/search?q=${q}`)}
+              title={w.title}
+            >
+              <BookCover url={w.coverUrl} title={w.title} size="sm" />
+              <p className={styles.workTitle}>{w.title}</p>
+              {w.publishYear && <p className={styles.workYear}>{w.publishYear}</p>}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

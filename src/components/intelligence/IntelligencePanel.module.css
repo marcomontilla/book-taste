@@ -138,6 +138,13 @@
   border: 1px solid var(--color-border);
   border-radius: calc(var(--radius) - 2px);
   padding: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.recItem:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
 .recMeta {

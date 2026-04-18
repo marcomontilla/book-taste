@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import i18n from '@/i18n/index'
 import { useInsights } from '@/hooks/useInsights'
 import type { UserBookWithBook, RecommendationItem } from '@/types'
@@ -117,8 +118,16 @@ export function IntelligencePanel({ userBook, completedBooks }: Props) {
 }
 
 function RecItem({ item }: { item: RecommendationItem }) {
+  const navigate = useNavigate()
+  const q = encodeURIComponent(`${item.title} ${item.author}`)
   return (
-    <li className={styles.recItem}>
+    <li
+      className={styles.recItem}
+      onClick={() => navigate(`/search?q=${q}`)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter') navigate(`/search?q=${q}`) }}
+    >
       <div className={styles.recMeta}>
         <span className={styles.recTitle}>{item.title}</span>
         <span className={styles.recAuthor}>{item.author}</span>

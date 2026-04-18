@@ -1,4 +1,5 @@
-import { useState, useRef, FormEvent } from 'react'
+import { useState, useRef, useEffect, useCallback, FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SearchResultCard } from '@/components/search/SearchResultCard'
 import { searchBooks } from '@/services/books'
@@ -13,15 +14,15 @@ export function SearchPage() {
   const [searched, setSearched] = useState(false)
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
+  const [searchParams] = useSearchParams()
 
-  async function handleSearch(e: FormEvent) {
-    e.preventDefault()
-    const q = query.trim()
-    if (!q) return
+  const doSearch = useCallback(async (q: string) => {
+    const trimmed = q.trim()
+    if (!trimmed) return
     setLoading(true)
     setError(null)
     try {
-      const data = await searchBooks(q)
+      const data = await searchBooks(trimmed)
       setResults(data)
       setSearched(true)
     } catch (err) {
@@ -29,6 +30,21 @@ export function SearchPage() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  // Auto-search when navigated here with ?q=...
+  useEffect(() => {
+    const q = searchParams.get('q') ?? ''
+    if (!q) return
+    setQuery(q)
+    doSearch(q)
+  // Only fire when the q param changes, not on every doSearch re-render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  async function handleSearch(e: FormEvent) {
+    e.preventDefault()
+    doSearch(query)
   }
 
   return (
