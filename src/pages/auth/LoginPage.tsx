@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from './AuthPage.module.css'
 
@@ -7,12 +8,13 @@ export function LoginPage() {
   const { signInWithEmail, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/library'
 
-  const [email, setEmail]     = useState('')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]     = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [error, setError]       = useState<string | null>(null)
+  const [loading, setLoading]   = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -22,7 +24,7 @@ export function LoginPage() {
       await signInWithEmail(email, password)
       navigate(from, { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign in failed')
+      setError(err instanceof Error ? err.message : t('auth.login.error'))
     } finally {
       setLoading(false)
     }
@@ -33,7 +35,7 @@ export function LoginPage() {
     try {
       await signInWithGoogle()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign in failed')
+      setError(err instanceof Error ? err.message : t('auth.login.error'))
     }
   }
 
@@ -41,32 +43,32 @@ export function LoginPage() {
     <div className={styles.page}>
       <div className={styles.card}>
         <h1 className={styles.title}>BookTaste</h1>
-        <p className={styles.subtitle}>Your personal reading library</p>
+        <p className={styles.subtitle}>{t('auth.appSubtitle')}</p>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <div className="form-field">
-            <label className="form-label" htmlFor="email">Email</label>
+            <label className="form-label" htmlFor="email">{t('auth.email')}</label>
             <input
               id="email"
               type="email"
               className="form-input"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               autoComplete="email"
               required
             />
           </div>
 
           <div className="form-field">
-            <label className="form-label" htmlFor="password">Password</label>
+            <label className="form-label" htmlFor="password">{t('auth.password')}</label>
             <input
               id="password"
               type="password"
               className="form-input"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder')}
               autoComplete="current-password"
               required
             />
@@ -75,20 +77,20 @@ export function LoginPage() {
           {error && <p className="form-error">{error}</p>}
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign in'}
+            {loading ? t('auth.login.submitting') : t('auth.login.submit')}
           </button>
         </form>
 
-        <div className={styles.divider}><span>or</span></div>
+        <div className={styles.divider}><span>{t('common.or')}</span></div>
 
         <button type="button" className="btn btn-outline" onClick={handleGoogle}>
           <GoogleIcon />
-          Continue with Google
+          {t('auth.login.google')}
         </button>
 
         <p className={styles.footer}>
-          Don't have an account?{' '}
-          <Link to="/signup">Sign up</Link>
+          {t('auth.login.noAccount')}{' '}
+          <Link to="/signup">{t('auth.login.signUp')}</Link>
         </p>
       </div>
     </div>

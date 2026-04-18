@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
 import { useWantToRead } from '@/hooks/useWantToRead'
 import { removeFromWantToRead } from '@/services/collections'
@@ -10,6 +11,7 @@ import pageStyles from './Page.module.css'
 export function WantToReadPage() {
   const { items, loading, error, refetch } = useWantToRead()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   async function handleMoveToLibrary(bookId: string, collectionBookId: string) {
@@ -36,13 +38,13 @@ export function WantToReadPage() {
   return (
     <div className={pageStyles.page}>
       <div className={pageStyles.pageHeader}>
-        <h1 className={pageStyles.pageTitle}>Want to Read</h1>
+        <h1 className={pageStyles.pageTitle}>{t('wtr.title')}</h1>
         <button
           className="btn btn-outline"
           style={{ width: 'auto' }}
           onClick={() => navigate('/search')}
         >
-          + Add
+          {t('wtr.add')}
         </button>
       </div>
 
@@ -55,10 +57,8 @@ export function WantToReadPage() {
       ) : items.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon">🔖</span>
-          <p className="empty-state-title">Nothing saved yet</p>
-          <p className="empty-state-body">
-            Use the Search page to add books you want to read later.
-          </p>
+          <p className="empty-state-title">{t('wtr.empty.title')}</p>
+          <p className="empty-state-body">{t('wtr.empty.body')}</p>
         </div>
       ) : (
         <ul className={pageStyles.bookList}>
@@ -79,13 +79,13 @@ export function WantToReadPage() {
                     style={{ width: 'auto', fontSize: '0.8125rem', padding: '0.4rem 0.875rem' }}
                     onClick={() => handleMoveToLibrary(item.bookId, item.collectionBookId)}
                   >
-                    Start reading
+                    {t('wtr.startReading')}
                   </button>
                   <button
                     className={styles.removeBtn}
                     onClick={() => handleRemove(item.collectionBookId)}
                   >
-                    Remove
+                    {t('common.remove')}
                   </button>
                 </div>
               </div>

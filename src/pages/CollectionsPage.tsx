@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useCollections } from '@/hooks/useCollections'
 import { createCollection, deleteCollection } from '@/services/collections'
 import { Modal } from '@/components/ui/Modal'
@@ -10,6 +11,7 @@ import pageStyles from './Page.module.css'
 export function CollectionsPage() {
   const { collections, loading, error, refetch } = useCollections()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [modalOpen, setModalOpen] = useState(false)
   const [newName, setNewName]     = useState('')
@@ -21,7 +23,7 @@ export function CollectionsPage() {
     setCreating(true)
     try {
       await createCollection(name)
-      showToast('Collection created')
+      showToast(t('collections.title') + ' ' + t('common.create').toLowerCase() + 'd')
       setNewName('')
       setModalOpen(false)
       refetch()
@@ -46,13 +48,13 @@ export function CollectionsPage() {
   return (
     <div className={pageStyles.page}>
       <div className={pageStyles.pageHeader}>
-        <h1 className={pageStyles.pageTitle}>Collections</h1>
+        <h1 className={pageStyles.pageTitle}>{t('collections.title')}</h1>
         <button
           className="btn btn-primary"
           style={{ width: 'auto' }}
           onClick={() => setModalOpen(true)}
         >
-          + New
+          {t('collections.newBtn')}
         </button>
       </div>
 
@@ -65,8 +67,8 @@ export function CollectionsPage() {
       ) : collections.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon">🗂</span>
-          <p className="empty-state-title">No collections yet</p>
-          <p className="empty-state-body">Create a collection to group your books.</p>
+          <p className="empty-state-title">{t('collections.empty.title')}</p>
+          <p className="empty-state-body">{t('collections.empty.body')}</p>
         </div>
       ) : (
         <ul className={pageStyles.collectionGrid} style={{ listStyle: 'none' }}>
@@ -81,14 +83,14 @@ export function CollectionsPage() {
                   <div>
                     <p className={styles.collectionName}>{c.name}</p>
                     <p className={styles.collectionCount}>
-                      {c.bookCount} {c.bookCount === 1 ? 'book' : 'books'}
+                      {t('collections.bookCount', { count: c.bookCount })}
                     </p>
                   </div>
                 </button>
                 <button
                   className={styles.deleteBtn}
                   onClick={() => handleDelete(c.id, c.name)}
-                  title="Delete collection"
+                  title={t('common.delete')}
                 >
                   ✕
                 </button>
@@ -101,16 +103,16 @@ export function CollectionsPage() {
       <Modal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setNewName('') }}
-        title="New collection"
+        title={t('collections.newModal')}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="form-field">
-            <label className="form-label" htmlFor="coll-name">Name</label>
+            <label className="form-label" htmlFor="coll-name">{t('collections.nameLabel')}</label>
             <input
               id="coll-name"
               type="text"
               className="form-input"
-              placeholder="e.g. Fantasy, To-review…"
+              placeholder={t('collections.namePlaceholder')}
               value={newName}
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleCreate() }}
@@ -122,7 +124,7 @@ export function CollectionsPage() {
             onClick={handleCreate}
             disabled={creating || !newName.trim()}
           >
-            {creating ? 'Creating…' : 'Create'}
+            {creating ? t('common.creating') : t('common.create')}
           </button>
         </div>
       </Modal>

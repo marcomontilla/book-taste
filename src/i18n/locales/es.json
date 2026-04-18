@@ -1,0 +1,182 @@
+{
+  "nav": {
+    "library": "Biblioteca",
+    "wantToRead": "Quiero Leer",
+    "collections": "Colecciones",
+    "settings": "Ajustes",
+    "search": "Buscar",
+    "scan": "Escanear"
+  },
+  "common": {
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "add": "Añadir",
+    "edit": "Editar",
+    "done": "Listo",
+    "back": "Volver",
+    "remove": "Quitar",
+    "rename": "Renombrar",
+    "create": "Crear",
+    "creating": "Creando…",
+    "or": "o",
+    "book_one": "libro",
+    "book_other": "libros"
+  },
+  "library": {
+    "title": "Mi Biblioteca",
+    "add": "+ Añadir",
+    "addFirst": "+ Añadir tu primer libro",
+    "filter": {
+      "all": "Todos",
+      "reading": "Leyendo",
+      "completed": "Completados"
+    },
+    "empty": {
+      "title": "Tu biblioteca está vacía",
+      "body": "Busca un libro para empezar."
+    },
+    "emptyFilter": {
+      "title": "No hay libros {{filter}}"
+    }
+  },
+  "book": {
+    "progress": "Progreso de Lectura",
+    "markCompleted": "Marcar como completado",
+    "completed": "Completado ✓",
+    "currentPage": "Página actual",
+    "of": "de",
+    "about": "Acerca de",
+    "collections": "Colecciones",
+    "removeFromLibrary": "Quitar de la biblioteca",
+    "confirmRemove": "¿Quitar este libro de tu biblioteca?"
+  },
+  "collections": {
+    "title": "Colecciones",
+    "newBtn": "+ Nueva",
+    "newModal": "Nueva colección",
+    "namePlaceholder": "Ej. Fantasía, Por revisar…",
+    "nameLabel": "Nombre",
+    "rename": "Renombrar colección",
+    "backLink": "← Colecciones",
+    "detailEmpty": {
+      "title": "Sin libros aún",
+      "body": "Añade libros desde su página de detalle."
+    },
+    "empty": {
+      "title": "Sin colecciones aún",
+      "body": "Crea una colección para agrupar tus libros."
+    },
+    "bookCount_one": "{{count}} libro",
+    "bookCount_other": "{{count}} libros"
+  },
+  "wtr": {
+    "title": "Quiero Leer",
+    "add": "+ Añadir",
+    "startReading": "Empezar a leer",
+    "empty": {
+      "title": "Nada guardado aún",
+      "body": "Usa la búsqueda para añadir libros que quieras leer después."
+    }
+  },
+  "search": {
+    "placeholder": "Buscar por título, autor, ISBN…",
+    "searchBtn": "Buscar",
+    "addToLibrary": "Añadir a biblioteca",
+    "adding": "Añadiendo…",
+    "save": "Guardar en QL",
+    "saving": "Guardando…",
+    "inLibrary": "✓ En Biblioteca",
+    "saved": "✓ Guardado",
+    "noResults": {
+      "title": "Sin resultados",
+      "body": "Prueba con un título, autor o ISBN diferente."
+    },
+    "initial": {
+      "title": "Encuentra tu próximo libro",
+      "body": "Busca en Open Library — libros, manga y ediciones especiales."
+    }
+  },
+  "scan": {
+    "title": "Escanear un libro",
+    "hint": "Apunta la cámara al código de barras en la contraportada",
+    "lookingUp": "Buscando ISBN {{isbn}}…",
+    "notFound": "No se encontró ningún libro para el ISBN {{isbn}}",
+    "addToLibrary": "Añadir a biblioteca",
+    "adding": "Añadiendo…",
+    "scanAgain": "Escanear de nuevo"
+  },
+  "notes": {
+    "heading": "Notas",
+    "addBtn": "+ Añadir nota",
+    "placeholder": "Escribe tu nota…",
+    "pagePlaceholder": "Página (opcional)",
+    "page": "Página",
+    "saveBtn": "Guardar",
+    "cancelBtn": "Cancelar",
+    "doneBtn": "Listo",
+    "editBtn": "Editar",
+    "deleteBtn": "Eliminar",
+    "empty": "Sin notas aún.",
+    "loading": "Cargando…"
+  },
+  "intelligence": {
+    "title": "Inteligencia del Libro",
+    "generate": "Generar insights",
+    "refresh": "Actualizar",
+    "generating": "Analizando tu historial de lectura…",
+    "likeLabel": "✦ Por qué podría gustarte",
+    "dislikeLabel": "◈ Ten cuidado con",
+    "similar": "Lecturas similares",
+    "different": "Algo diferente",
+    "emptyText": "Obtén insights personalizados — por qué podría gustarte o no este libro, más selecciones curadas.",
+    "generatedAt": "Generado el {{date}}"
+  },
+  "auth": {
+    "appSubtitle": "Tu biblioteca de lectura personal",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "password": "Contraseña",
+    "passwordPlaceholder": "••••••••",
+    "passwordNewPlaceholder": "Al menos 8 caracteres",
+    "passwordError": "La contraseña debe tener al menos 8 caracteres",
+    "login": {
+      "title": "Iniciar sesión",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión…",
+      "google": "Continuar con Google",
+      "noAccount": "¿No tienes cuenta?",
+      "signUp": "Regístrate",
+      "error": "Error al iniciar sesión"
+    },
+    "signup": {
+      "title": "Crear cuenta",
+      "subtitle": "Empieza a construir tu biblioteca",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta…",
+      "google": "Continuar con Google",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "signIn": "Iniciar sesión",
+      "error": "Error al registrarse",
+      "googleError": "Error con Google",
+      "confirmTitle": "Revisa tu correo",
+      "confirmBody": "Enviamos un enlace de confirmación a {{email}}. Haz clic para activar tu cuenta.",
+      "backToLogin": "Volver al inicio de sesión"
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "signedInAs": "Sesión iniciada como",
+    "signOut": "Cerrar sesión",
+    "theme": {
+      "label": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
+    "language": {
+      "label": "Idioma"
+    }
+  }
+}

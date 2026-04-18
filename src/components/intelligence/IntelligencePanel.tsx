@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useInsights } from '@/hooks/useInsights'
 import type { UserBookWithBook, RecommendationItem } from '@/types'
 import styles from './IntelligencePanel.module.css'
@@ -9,6 +10,7 @@ interface Props {
 
 export function IntelligencePanel({ userBook, completedBooks }: Props) {
   const { book } = userBook
+  const { t } = useTranslation()
   const { insight, recommendations, loading, generating, error, generate, hasInsights } =
     useInsights(userBook.book_id)
 
@@ -36,7 +38,7 @@ export function IntelligencePanel({ userBook, completedBooks }: Props) {
   if (loading) {
     return (
       <div className={styles.panel}>
-        <h2 className={styles.heading}>Book Intelligence</h2>
+        <h2 className={styles.heading}>{t('intelligence.title')}</h2>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem' }}>
           <div className="spinner" />
         </div>
@@ -47,61 +49,45 @@ export function IntelligencePanel({ userBook, completedBooks }: Props) {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <h2 className={styles.heading}>Book Intelligence</h2>
+        <h2 className={styles.heading}>{t('intelligence.title')}</h2>
         {hasInsights && (
-          <button
-            className={styles.refreshBtn}
-            onClick={handleGenerate}
-            disabled={generating}
-          >
-            {generating ? 'Generating…' : 'Refresh'}
+          <button className={styles.refreshBtn} onClick={handleGenerate} disabled={generating}>
+            {generating ? t('common.saving') : t('intelligence.refresh')}
           </button>
         )}
       </div>
 
-      {error && (
-        <p className={styles.error}>{error}</p>
-      )}
+      {error && <p className={styles.error}>{error}</p>}
 
       {generating && (
         <div className={styles.generatingBanner}>
           <div className="spinner" style={{ width: '1rem', height: '1rem', borderWidth: '2px' }} />
-          <span>Analysing your reading history…</span>
+          <span>{t('intelligence.generating')}</span>
         </div>
       )}
 
       {!hasInsights && !generating ? (
         <div className={styles.empty}>
-          <p className={styles.emptyText}>
-            Get personalised insights — why you might love or skip this book, plus curated picks.
-          </p>
-          <button
-            className="btn btn-primary"
-            style={{ width: 'auto' }}
-            onClick={handleGenerate}
-            disabled={generating}
-          >
-            Generate insights
+          <p className={styles.emptyText}>{t('intelligence.emptyText')}</p>
+          <button className="btn btn-primary" style={{ width: 'auto' }} onClick={handleGenerate} disabled={generating}>
+            {t('intelligence.generate')}
           </button>
         </div>
       ) : hasInsights && insight ? (
         <div className={styles.content}>
-          {/* Why you may like it */}
           <div className={styles.reasonCard}>
-            <p className={styles.reasonLabel}>✦ Why you may like it</p>
+            <p className={styles.reasonLabel}>{t('intelligence.likeLabel')}</p>
             <p className={styles.reasonText}>{insight.like_reason}</p>
           </div>
 
-          {/* Why you may not like it */}
           <div className={[styles.reasonCard, styles.reasonCardCaution].join(' ')}>
-            <p className={styles.reasonLabel}>◈ Watch out for</p>
+            <p className={styles.reasonLabel}>{t('intelligence.dislikeLabel')}</p>
             <p className={styles.reasonText}>{insight.dislike_reason}</p>
           </div>
 
-          {/* Similar reads */}
           {similarItems.length > 0 && (
             <div className={styles.recSection}>
-              <p className={styles.recSectionTitle}>Similar reads</p>
+              <p className={styles.recSectionTitle}>{t('intelligence.similar')}</p>
               <ul className={styles.recList}>
                 {similarItems.map((item, i) => (
                   <RecItem key={i} item={item} />
@@ -110,10 +96,9 @@ export function IntelligencePanel({ userBook, completedBooks }: Props) {
             </div>
           )}
 
-          {/* Blind side */}
           {blindSideItems.length > 0 && (
             <div className={styles.recSection}>
-              <p className={styles.recSectionTitle}>Something different</p>
+              <p className={styles.recSectionTitle}>{t('intelligence.different')}</p>
               <ul className={styles.recList}>
                 <RecItem item={blindSideItems[0]} />
               </ul>
@@ -121,7 +106,7 @@ export function IntelligencePanel({ userBook, completedBooks }: Props) {
           )}
 
           <p className={styles.generatedAt}>
-            Generated {new Date(insight.updated_at).toLocaleDateString()}
+            {t('intelligence.generatedAt', { date: new Date(insight.updated_at).toLocaleDateString() })}
           </p>
         </div>
       ) : null}

@@ -1,0 +1,182 @@
+{
+  "nav": {
+    "library": "Library",
+    "wantToRead": "Want to Read",
+    "collections": "Collections",
+    "settings": "Settings",
+    "search": "Search",
+    "scan": "Scan"
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "add": "Add",
+    "edit": "Edit",
+    "done": "Done",
+    "back": "Back",
+    "remove": "Remove",
+    "rename": "Rename",
+    "create": "Create",
+    "creating": "Creating…",
+    "or": "or",
+    "book_one": "book",
+    "book_other": "books"
+  },
+  "library": {
+    "title": "My Library",
+    "add": "+ Add",
+    "addFirst": "+ Add your first book",
+    "filter": {
+      "all": "All",
+      "reading": "Reading",
+      "completed": "Completed"
+    },
+    "empty": {
+      "title": "Your library is empty",
+      "body": "Search for a book to get started."
+    },
+    "emptyFilter": {
+      "title": "No {{filter}} books"
+    }
+  },
+  "book": {
+    "progress": "Reading Progress",
+    "markCompleted": "Mark as completed",
+    "completed": "Completed ✓",
+    "currentPage": "Current page",
+    "of": "of",
+    "about": "About",
+    "collections": "Collections",
+    "removeFromLibrary": "Remove from library",
+    "confirmRemove": "Remove this book from your library?"
+  },
+  "collections": {
+    "title": "Collections",
+    "newBtn": "+ New",
+    "newModal": "New collection",
+    "namePlaceholder": "e.g. Fantasy, To-review…",
+    "nameLabel": "Name",
+    "rename": "Rename collection",
+    "backLink": "← Collections",
+    "detailEmpty": {
+      "title": "No books yet",
+      "body": "Add books from their detail page."
+    },
+    "empty": {
+      "title": "No collections yet",
+      "body": "Create a collection to group your books."
+    },
+    "bookCount_one": "{{count}} book",
+    "bookCount_other": "{{count}} books"
+  },
+  "wtr": {
+    "title": "Want to Read",
+    "add": "+ Add",
+    "startReading": "Start reading",
+    "empty": {
+      "title": "Nothing saved yet",
+      "body": "Use the Search page to add books you want to read later."
+    }
+  },
+  "search": {
+    "placeholder": "Search by title, author, ISBN…",
+    "searchBtn": "Search",
+    "addToLibrary": "Add to library",
+    "adding": "Adding…",
+    "save": "Save to WTR",
+    "saving": "Saving…",
+    "inLibrary": "✓ In Library",
+    "saved": "✓ Saved",
+    "noResults": {
+      "title": "No results found",
+      "body": "Try a different title, author name, or ISBN."
+    },
+    "initial": {
+      "title": "Find your next book",
+      "body": "Search Open Library — books, manga, and collected editions."
+    }
+  },
+  "scan": {
+    "title": "Scan a book",
+    "hint": "Point your camera at the barcode on the back cover",
+    "lookingUp": "Looking up ISBN {{isbn}}…",
+    "notFound": "No book found for ISBN {{isbn}}",
+    "addToLibrary": "Add to library",
+    "adding": "Adding…",
+    "scanAgain": "Scan again"
+  },
+  "notes": {
+    "heading": "Notes",
+    "addBtn": "+ Add note",
+    "placeholder": "Write your note…",
+    "pagePlaceholder": "Page (optional)",
+    "page": "Page",
+    "saveBtn": "Save",
+    "cancelBtn": "Cancel",
+    "doneBtn": "Done",
+    "editBtn": "Edit",
+    "deleteBtn": "Delete",
+    "empty": "No notes yet.",
+    "loading": "Loading…"
+  },
+  "intelligence": {
+    "title": "Book Intelligence",
+    "generate": "Generate insights",
+    "refresh": "Refresh",
+    "generating": "Analysing your reading history…",
+    "likeLabel": "✦ Why you may like it",
+    "dislikeLabel": "◈ Watch out for",
+    "similar": "Similar reads",
+    "different": "Something different",
+    "emptyText": "Get personalised insights — why you might love or skip this book, plus curated picks.",
+    "generatedAt": "Generated {{date}}"
+  },
+  "auth": {
+    "appSubtitle": "Your personal reading library",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "passwordNewPlaceholder": "At least 8 characters",
+    "passwordError": "Password must be at least 8 characters",
+    "login": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "google": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "error": "Sign in failed"
+    },
+    "signup": {
+      "title": "Create account",
+      "subtitle": "Start building your reading library",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "google": "Continue with Google",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "error": "Sign up failed",
+      "googleError": "Google sign in failed",
+      "confirmTitle": "Check your email",
+      "confirmBody": "We sent a confirmation link to {{email}}. Click it to activate your account.",
+      "backToLogin": "Back to Login"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out",
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": {
+      "label": "Language"
+    }
+  }
+}

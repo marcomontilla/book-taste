@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNotes } from '@/hooks/useNotes'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { Note } from '@/types'
@@ -10,18 +11,16 @@ interface Props {
 
 export function NoteList({ userBookId }: Props) {
   const { notes, loading, add, update, remove } = useNotes(userBookId)
+  const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
 
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h3 className={styles.heading}>Notes</h3>
+        <h3 className={styles.heading}>{t('notes.heading')}</h3>
         {!showForm && (
-          <button
-            className={styles.addBtn}
-            onClick={() => setShowForm(true)}
-          >
-            + Add note
+          <button className={styles.addBtn} onClick={() => setShowForm(true)}>
+            {t('notes.addBtn')}
           </button>
         )}
       </div>
@@ -37,18 +36,13 @@ export function NoteList({ userBookId }: Props) {
       )}
 
       {loading ? (
-        <p className={styles.muted}>Loading…</p>
+        <p className={styles.muted}>{t('notes.loading')}</p>
       ) : notes.length === 0 && !showForm ? (
-        <p className={styles.muted}>No notes yet.</p>
+        <p className={styles.muted}>{t('notes.empty')}</p>
       ) : (
         <ul className={styles.list}>
           {notes.map(note => (
-            <NoteItem
-              key={note.id}
-              note={note}
-              onUpdate={update}
-              onDelete={remove}
-            />
+            <NoteItem key={note.id} note={note} onUpdate={update} onDelete={remove} />
           ))}
         </ul>
       )}
@@ -66,9 +60,10 @@ interface FormProps {
 }
 
 export function NoteForm({ onSave, onCancel, initialContent = '', initialPage = null }: FormProps) {
-  const [content, setContent]   = useState(initialContent)
-  const [page, setPage]         = useState<string>(initialPage != null ? String(initialPage) : '')
-  const [saving, setSaving]     = useState(false)
+  const [content, setContent] = useState(initialContent)
+  const [page, setPage]       = useState<string>(initialPage != null ? String(initialPage) : '')
+  const [saving, setSaving]   = useState(false)
+  const { t } = useTranslation()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => { textareaRef.current?.focus() }, [])
@@ -88,7 +83,7 @@ export function NoteForm({ onSave, onCancel, initialContent = '', initialPage = 
       <textarea
         ref={textareaRef}
         className={styles.textarea}
-        placeholder="Write your note…"
+        placeholder={t('notes.placeholder')}
         value={content}
         onChange={e => setContent(e.target.value)}
         rows={3}
@@ -97,14 +92,14 @@ export function NoteForm({ onSave, onCancel, initialContent = '', initialPage = 
         <input
           type="number"
           className={`form-input ${styles.pageInput}`}
-          placeholder="Page (optional)"
+          placeholder={t('notes.pagePlaceholder')}
           value={page}
           onChange={e => setPage(e.target.value)}
           min={1}
         />
         <div className={styles.formActions}>
           <button className="btn btn-outline" style={{ width: 'auto' }} onClick={onCancel}>
-            Cancel
+            {t('notes.cancelBtn')}
           </button>
           <button
             className="btn btn-primary"
@@ -112,7 +107,7 @@ export function NoteForm({ onSave, onCancel, initialContent = '', initialPage = 
             onClick={handleSave}
             disabled={!content.trim() || saving}
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? t('common.saving') : t('notes.saveBtn')}
           </button>
         </div>
       </div>
@@ -133,11 +128,11 @@ function NoteItem({ note, onUpdate, onDelete }: ItemProps) {
   const [content, setContent]   = useState(note.content)
   const [page, setPage]         = useState<string>(note.page_number != null ? String(note.page_number) : '')
   const [deleting, setDeleting] = useState(false)
+  const { t } = useTranslation()
 
   const debouncedContent = useDebounce(content, 1000)
   const debouncedPage    = useDebounce(page, 1000)
 
-  // Auto-save while editing
   useEffect(() => {
     if (!editing) return
     if (debouncedContent === note.content && (debouncedPage === '' ? null : Number(debouncedPage)) === note.page_number) return
@@ -170,7 +165,7 @@ function NoteItem({ note, onUpdate, onDelete }: ItemProps) {
             <input
               type="number"
               className={`form-input ${styles.pageInput}`}
-              placeholder="Page"
+              placeholder={t('notes.page')}
               value={page}
               onChange={e => setPage(e.target.value)}
               min={1}
@@ -180,7 +175,7 @@ function NoteItem({ note, onUpdate, onDelete }: ItemProps) {
               style={{ width: 'auto', fontSize: '0.8125rem' }}
               onClick={() => setEditing(false)}
             >
-              Done
+              {t('notes.doneBtn')}
             </button>
           </div>
         </div>
@@ -192,14 +187,10 @@ function NoteItem({ note, onUpdate, onDelete }: ItemProps) {
 
       <div className={styles.noteActions}>
         {!editing && (
-          <button className={styles.editLink} onClick={() => setEditing(true)}>Edit</button>
+          <button className={styles.editLink} onClick={() => setEditing(true)}>{t('notes.editBtn')}</button>
         )}
-        <button
-          className={styles.deleteLink}
-          onClick={handleDelete}
-          disabled={deleting}
-        >
-          Delete
+        <button className={styles.deleteLink} onClick={handleDelete} disabled={deleting}>
+          {t('notes.deleteBtn')}
         </button>
       </div>
     </li>

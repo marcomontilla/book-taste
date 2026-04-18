@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ScannerView } from '@/components/scanner/ScannerView'
 import { lookupByIsbn, upsertBook } from '@/services/books'
 import { addToLibrary } from '@/services/userBooks'
@@ -18,6 +19,7 @@ type ScanState =
 export default function ScanPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [state, setState] = useState<ScanState>({ phase: 'scanning' })
   const [scannerActive, setScannerActive] = useState(true)
   const detectedRef = useRef(false)
@@ -60,27 +62,27 @@ export default function ScanPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.heading}>Scan a book</h1>
+      <h1 className={styles.heading}>{t('scan.title')}</h1>
 
       <div className={styles.scannerWrap}>
         <ScannerView onDetect={handleDetect} active={scannerActive} />
       </div>
 
       {state.phase === 'scanning' && (
-        <p className={styles.hint}>Point your camera at the barcode on the back cover</p>
+        <p className={styles.hint}>{t('scan.hint')}</p>
       )}
 
       {state.phase === 'looking_up' && (
         <div className={styles.status}>
           <div className="spinner" />
-          <span>Looking up ISBN {state.isbn}…</span>
+          <span>{t('scan.lookingUp', { isbn: state.isbn })}</span>
         </div>
       )}
 
       {state.phase === 'not_found' && (
         <div className={styles.resultCard}>
-          <p className={styles.notFound}>No book found for ISBN {state.isbn}</p>
-          <button className="btn btn-secondary" onClick={handleScanAgain}>Scan again</button>
+          <p className={styles.notFound}>{t('scan.notFound', { isbn: state.isbn })}</p>
+          <button className="btn btn-secondary" onClick={handleScanAgain}>{t('scan.scanAgain')}</button>
         </div>
       )}
 
@@ -101,10 +103,10 @@ export default function ScanPage() {
               onClick={() => handleAdd(state.book)}
               disabled={state.phase === 'adding'}
             >
-              {state.phase === 'adding' ? 'Adding…' : 'Add to library'}
+              {state.phase === 'adding' ? t('scan.adding') : t('scan.addToLibrary')}
             </button>
             <button className="btn btn-secondary" onClick={handleScanAgain}>
-              Scan again
+              {t('scan.scanAgain')}
             </button>
           </div>
         </div>

@@ -1,15 +1,17 @@
 import { useState, useRef, FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SearchResultCard } from '@/components/search/SearchResultCard'
 import { searchBooks } from '@/services/books'
 import type { BookSearchResult } from '@/types'
 import styles from './SearchPage.module.css'
 
 export function SearchPage() {
-  const [query, setQuery]     = useState('')
-  const [results, setResults] = useState<BookSearchResult[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
+  const [query, setQuery]       = useState('')
+  const [results, setResults]   = useState<BookSearchResult[]>([])
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
+  const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
 
   async function handleSearch(e: FormEvent) {
@@ -36,7 +38,7 @@ export function SearchPage() {
           ref={inputRef}
           type="search"
           className={`form-input ${styles.input}`}
-          placeholder="Search by title, author, ISBN…"
+          placeholder={t('search.placeholder')}
           value={query}
           onChange={e => setQuery(e.target.value)}
           autoFocus
@@ -48,7 +50,7 @@ export function SearchPage() {
           style={{ width: 'auto', flexShrink: 0 }}
           disabled={loading || !query.trim()}
         >
-          {loading ? '…' : 'Search'}
+          {loading ? '…' : t('search.searchBtn')}
         </button>
       </form>
 
@@ -63,8 +65,8 @@ export function SearchPage() {
       {!loading && searched && results.length === 0 && (
         <div className="empty-state">
           <span className="empty-state-icon">🔍</span>
-          <p className="empty-state-title">No results found</p>
-          <p className="empty-state-body">Try a different title, author name, or ISBN.</p>
+          <p className="empty-state-title">{t('search.noResults.title')}</p>
+          <p className="empty-state-body">{t('search.noResults.body')}</p>
         </div>
       )}
 
@@ -81,8 +83,8 @@ export function SearchPage() {
       {!searched && !loading && (
         <div className="empty-state">
           <span className="empty-state-icon">📖</span>
-          <p className="empty-state-title">Find your next book</p>
-          <p className="empty-state-body">Search Open Library — books, manga, and collected editions.</p>
+          <p className="empty-state-title">{t('search.initial.title')}</p>
+          <p className="empty-state-body">{t('search.initial.body')}</p>
         </div>
       )}
     </div>

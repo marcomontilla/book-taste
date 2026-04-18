@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
 import { Modal } from '@/components/ui/Modal'
 import {
@@ -16,6 +17,7 @@ export function CollectionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { t } = useTranslation()
 
   const [collection, setCollection] = useState<CollectionWithBooks | null>(null)
   const [loading, setLoading]       = useState(true)
@@ -83,30 +85,21 @@ export function CollectionDetailPage() {
     <div className={pageStyles.page}>
       <div className={pageStyles.pageHeader}>
         <div>
-          <button
-            className={styles.backBtn}
-            onClick={() => navigate('/collections')}
-          >
-            ← Collections
+          <button className={styles.backBtn} onClick={() => navigate('/collections')}>
+            {t('collections.backLink')}
           </button>
           <h1 className={pageStyles.pageTitle}>{collection.name}</h1>
         </div>
-        <button
-          className="btn btn-outline"
-          style={{ width: 'auto' }}
-          onClick={() => setRenameOpen(true)}
-        >
-          Rename
+        <button className="btn btn-outline" style={{ width: 'auto' }} onClick={() => setRenameOpen(true)}>
+          {t('common.rename')}
         </button>
       </div>
 
       {collection.books.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon">📖</span>
-          <p className="empty-state-title">No books yet</p>
-          <p className="empty-state-body">
-            Add books from their detail page.
-          </p>
+          <p className="empty-state-title">{t('collections.detailEmpty.title')}</p>
+          <p className="empty-state-body">{t('collections.detailEmpty.body')}</p>
         </div>
       ) : (
         <ul className={pageStyles.bookList} style={{ listStyle: 'none' }}>
@@ -122,7 +115,7 @@ export function CollectionDetailPage() {
               <button
                 className={styles.removeBtn}
                 onClick={() => handleRemoveBook(collectionBookId, book.title)}
-                title="Remove from collection"
+                title={t('common.remove')}
               >
                 ✕
               </button>
@@ -131,11 +124,7 @@ export function CollectionDetailPage() {
         </ul>
       )}
 
-      <Modal
-        isOpen={renameOpen}
-        onClose={() => setRenameOpen(false)}
-        title="Rename collection"
-      >
+      <Modal isOpen={renameOpen} onClose={() => setRenameOpen(false)} title={t('collections.rename')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <input
             type="text"
@@ -150,7 +139,7 @@ export function CollectionDetailPage() {
             onClick={handleRename}
             disabled={renaming || !newName.trim()}
           >
-            {renaming ? 'Saving…' : 'Save'}
+            {renaming ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </Modal>

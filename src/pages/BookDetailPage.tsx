@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { NoteList } from '@/components/notes/NoteList'
@@ -25,6 +26,7 @@ export function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const { userBook, setUserBook, loading, error } = useUserBook(id!)
 
   // Progress (auto-save)
@@ -93,7 +95,7 @@ export function BookDetailPage() {
 
   const handleRemoveFromLibrary = useCallback(async () => {
     if (!userBook) return
-    if (!window.confirm('Remove this book from your library?')) return
+    if (!window.confirm(t('book.confirmRemove'))) return
     try {
       await removeFromLibrary(userBook.id)
       showToast('Removed from library')
@@ -134,9 +136,9 @@ export function BookDetailPage() {
     return (
       <div className="empty-state">
         <span className="empty-state-icon">📖</span>
-        <p className="empty-state-title">Book not found</p>
+        <p className="empty-state-title">{t('library.title')}</p>
         <button className="btn btn-outline" style={{ width: 'auto' }} onClick={() => navigate('/library')}>
-          Back to Library
+          {t('common.back')}
         </button>
       </div>
     )
@@ -150,7 +152,7 @@ export function BookDetailPage() {
     <div className={styles.page}>
       {/* Back */}
       <button className={styles.backBtn} onClick={() => navigate(-1)}>
-        ← Back
+        ← {t('common.back')}
       </button>
 
       {/* Hero */}
@@ -174,7 +176,7 @@ export function BookDetailPage() {
 
       {/* Progress */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Reading Progress</h2>
+        <h2 className={styles.sectionTitle}>{t('book.progress')}</h2>
 
         <label className={styles.completedRow}>
           <input
@@ -183,7 +185,7 @@ export function BookDetailPage() {
             onChange={e => handleCompleteToggle(e.target.checked)}
             className={styles.checkbox}
           />
-          <span>{status === 'completed' ? 'Completed ✓' : 'Mark as completed'}</span>
+          <span>{status === 'completed' ? t('book.completed') : t('book.markCompleted')}</span>
         </label>
 
         <div className={status === 'completed' ? styles.progressDisabled : undefined}>
@@ -191,7 +193,7 @@ export function BookDetailPage() {
           <div className={styles.progressArea}>
             <ProgressBar current={currentPage} total={effectiveTotal} showLabel />
             <div className={styles.pageInputRow}>
-              <label className={styles.pageLabel} htmlFor="current-page">Current page</label>
+              <label className={styles.pageLabel} htmlFor="current-page">{t('book.currentPage')}</label>
               <input
                 id="current-page"
                 type="number"
@@ -202,7 +204,7 @@ export function BookDetailPage() {
                 disabled={status === 'completed'}
                 onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
               />
-              <span className={styles.pageMeta}>of {effectiveTotal}</span>
+              <span className={styles.pageMeta}>{t('book.of')} {effectiveTotal}</span>
             </div>
           </div>
         ) : (
@@ -225,7 +227,7 @@ export function BookDetailPage() {
       {/* Description */}
       {book.description && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>About</h2>
+          <h2 className={styles.sectionTitle}>{t('book.about')}</h2>
           <p className={styles.description}>{book.description}</p>
         </section>
       )}
@@ -233,7 +235,7 @@ export function BookDetailPage() {
       {/* Collections */}
       {collectionStatus.length > 0 && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Collections</h2>
+          <h2 className={styles.sectionTitle}>{t('book.collections')}</h2>
           <div className={styles.collectionPills}>
             {collectionStatus.map(s => (
               <button
@@ -264,7 +266,7 @@ export function BookDetailPage() {
       {/* Danger zone */}
       <section className={styles.dangerZone}>
         <button className={styles.removeBtn} onClick={handleRemoveFromLibrary}>
-          Remove from library
+          {t('book.removeFromLibrary')}
         </button>
       </section>
     </div>

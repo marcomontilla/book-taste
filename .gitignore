@@ -26,3 +26,6 @@ for_claude/
 # logs
 *.log
 npm-debug.log*
+
+.vercel
+.env*.local

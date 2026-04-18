@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { BookCover } from '@/components/books/BookCover'
 import { upsertBook } from '@/services/books'
 import { addToLibrary } from '@/services/userBooks'
@@ -15,6 +16,7 @@ type BtnState = 'idle' | 'loading' | 'done'
 
 export function SearchResultCard({ result }: Props) {
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [libraryState, setLibraryState] = useState<BtnState>('idle')
   const [wtrState, setWtrState]         = useState<BtnState>('idle')
 
@@ -69,28 +71,21 @@ export function SearchResultCard({ result }: Props) {
 
         <div className={styles.actions}>
           <button
-            className={[
-              styles.actionBtn,
-              libraryState === 'done' ? styles.done : '',
-            ].join(' ')}
+            className={[styles.actionBtn, libraryState === 'done' ? styles.done : ''].join(' ')}
             onClick={handleAddLibrary}
             disabled={libraryState !== 'idle'}
           >
-            {libraryState === 'done' ? '✓ In Library' :
-             libraryState === 'loading' ? '…' : '+ Library'}
+            {libraryState === 'done' ? t('search.inLibrary') :
+             libraryState === 'loading' ? '…' : t('search.addToLibrary')}
           </button>
 
           <button
-            className={[
-              styles.actionBtn,
-              styles.actionBtnSecondary,
-              wtrState === 'done' ? styles.done : '',
-            ].join(' ')}
+            className={[styles.actionBtn, styles.actionBtnSecondary, wtrState === 'done' ? styles.done : ''].join(' ')}
             onClick={handleAddWTR}
             disabled={wtrState !== 'idle'}
           >
-            {wtrState === 'done' ? '✓ Saved' :
-             wtrState === 'loading' ? '…' : '+ Want to Read'}
+            {wtrState === 'done' ? t('search.saved') :
+             wtrState === 'loading' ? '…' : t('search.save')}
           </button>
         </div>
       </div>

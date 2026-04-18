@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BookCard } from '@/components/books/BookCard'
 import { useLibrary } from '@/hooks/useLibrary'
 import styles from './Page.module.css'
@@ -9,22 +10,29 @@ type Filter = 'all' | 'reading' | 'completed'
 export function LibraryPage() {
   const { userBooks, loading, error } = useLibrary()
   const [filter, setFilter] = useState<Filter>('all')
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const visible = filter === 'all'
     ? userBooks
     : userBooks.filter(ub => ub.status === filter)
 
+  const filterLabels: Record<Filter, string> = {
+    all: t('library.filter.all'),
+    reading: t('library.filter.reading'),
+    completed: t('library.filter.completed'),
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>My Library</h1>
+        <h1 className={styles.pageTitle}>{t('library.title')}</h1>
         <button
           className="btn btn-primary"
           style={{ width: 'auto' }}
           onClick={() => navigate('/search')}
         >
-          + Add
+          {t('library.add')}
         </button>
       </div>
 
@@ -38,7 +46,7 @@ export function LibraryPage() {
               className={[styles.filterBtn, filter === f ? styles.filterBtnActive : ''].join(' ')}
               onClick={() => setFilter(f)}
             >
-              {f === 'all' ? 'All' : f === 'reading' ? 'Reading' : 'Completed'}
+              {filterLabels[f]}
               {f !== 'all' && (
                 <span className={styles.filterCount}>
                   {userBooks.filter(ub => ub.status === f).length}
@@ -56,20 +64,20 @@ export function LibraryPage() {
       ) : userBooks.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon">📚</span>
-          <p className="empty-state-title">Your library is empty</p>
-          <p className="empty-state-body">Search for a book to get started.</p>
+          <p className="empty-state-title">{t('library.empty.title')}</p>
+          <p className="empty-state-body">{t('library.empty.body')}</p>
           <button
             className="btn btn-primary"
             style={{ width: 'auto', marginTop: '0.5rem' }}
             onClick={() => navigate('/search')}
           >
-            + Add your first book
+            {t('library.addFirst')}
           </button>
         </div>
       ) : visible.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon">🔖</span>
-          <p className="empty-state-title">No {filter} books</p>
+          <p className="empty-state-title">{t('library.emptyFilter.title', { filter: filterLabels[filter].toLowerCase() })}</p>
         </div>
       ) : (
         <ul className={styles.bookList}>
