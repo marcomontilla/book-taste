@@ -85,6 +85,7 @@ export interface OLSearchDoc {
   language?: string[]
   subject?: string[]
   ebook_access?: string
+  series_key?: string[]
 }
 
 export interface OLBookDetails {
@@ -96,6 +97,7 @@ export interface OLBookDetails {
   firstPublishYear: number | null
   ebookAccess: string | null
   series: string | null
+  seriesKey: string | null
   description: string | null
 }
 

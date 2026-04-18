@@ -8,6 +8,31 @@ export function olCoverUrl(coverId: number, size: 'S' | 'M' | 'L' = 'M'): string
   return `${OL_COVERS}/${coverId}-${size}.jpg`
 }
 
+function normalizeDescription(text: string): string {
+  // OL uses \r\n\r\n between paragraphs; normalize first
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  const clean = (s: string) =>
+    s.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')  // [text](url) → text
+     .replace(/\[([^\]]+)\]\[[^\]]*\]/g, '$1') // [text][ref] → text
+     .replace(/\*\*([^*]+)\*\*/g, '$1')
+     .replace(/\*([^*]+)\*/g, '$1')
+     .trim()
+
+  // After cleaning, ([source][1]) becomes (source) — stop there
+  const NOISE = /^\(source\)|^-{4,}|^see also|^\[\d+\]:/i
+
+  const result: string[] = []
+  for (const para of normalized.split('\n\n')) {
+    const cleaned = clean(para.trim())
+    if (!cleaned) continue
+    if (NOISE.test(cleaned)) break
+    result.push(cleaned)
+    if (result.length >= 6) break
+  }
+  return result.join('\n\n')
+}
+
 function extractIsbns(raw: string[] | undefined) {
   if (!raw?.length) return { isbn10: null, isbn13: null }
   const isbn13 = raw.find(i => /^\d{13}$/.test(i)) ?? null
@@ -120,7 +145,7 @@ export async function fetchOLDetails(
 ): Promise<OLBookDetails> {
   const params = new URLSearchParams({
     limit: '1',
-    fields: 'ratings_average,ratings_count,publisher,language,subject,ebook_access,first_publish_year,series',
+    fields: 'ratings_average,ratings_count,publisher,language,subject,ebook_access,first_publish_year,series,series_key',
   })
   const isbn = book.isbn_13 ?? book.isbn_10
   if (isbn) {
@@ -148,8 +173,8 @@ export async function fetchOLDetails(
     try {
       const works = await worksRes.value.json()
       const raw = works.description
-      if (typeof raw === 'string') description = raw
-      else if (raw?.value) description = raw.value
+      const text = typeof raw === 'string' ? raw : (raw?.value ?? null)
+      if (text) description = normalizeDescription(text)
     } catch { /* ignore */ }
   }
 
@@ -167,7 +192,36 @@ export async function fetchOLDetails(
     firstPublishYear: doc.first_publish_year ?? null,
     ebookAccess: doc.ebook_access ?? null,
     series: doc.series?.[0] ?? null,
+    seriesKey: doc.series_key?.[0] ?? null,
     description,
+  }
+}
+
+export interface SeriesBook {
+  olKey: string
+  title: string
+  coverUrl: string | null
+}
+
+export async function fetchSeriesBooks(
+  seriesKey: string,
+  excludeOlKey: string,
+): Promise<SeriesBook[]> {
+  try {
+    const res = await fetch(`https://openlibrary.org/series/${seriesKey}/seeds.json`)
+    if (!res.ok) return []
+    const json = await res.json()
+    return (json.entries as Array<{ url: string; type: string; title: string; picture?: { url: string } }>)
+      .filter(e => e.type === 'work' && e.url !== excludeOlKey)
+      .map(e => ({
+        olKey: e.url,
+        title: e.title,
+        coverUrl: e.picture?.url
+          ? `https:${e.picture.url.replace(/-S\.jpg$/, '-M.jpg')}`
+          : null,
+      }))
+  } catch {
+    return []
   }
 }
 

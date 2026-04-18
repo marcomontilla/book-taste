@@ -11,8 +11,11 @@
 }
 
 .heading {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
 }
 
 .addBtn {
@@ -54,7 +57,7 @@
 }
 
 .noteContent {
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   line-height: 1.55;
   color: var(--color-text);
   cursor: pointer;
@@ -72,7 +75,7 @@
 .editLink, .deleteLink {
   background: none;
   border: none;
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   cursor: pointer;
   padding: 0;
   color: var(--color-text-muted);

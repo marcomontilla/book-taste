@@ -2,25 +2,27 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1.125rem;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 }
 
 .heading {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .refreshBtn {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   color: var(--color-primary);
   background: none;
   border: 1px solid var(--color-primary);
@@ -49,7 +51,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   margin-bottom: 0.75rem;
 }
@@ -64,7 +66,7 @@
 }
 
 .emptyText {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   line-height: 1.5;
   margin: 0;
@@ -80,7 +82,7 @@
 
 .reasonCard {
   background: var(--color-primary-light);
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: var(--radius-sm);
   padding: 0.875rem 1rem;
 }
 
@@ -102,7 +104,7 @@
 }
 
 .reasonText {
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   color: var(--color-text);
   line-height: 1.55;
   margin: 0;
@@ -117,7 +119,7 @@
 }
 
 .recSectionTitle {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -136,7 +138,7 @@
 
 .recItem {
   border: 1px solid var(--color-border);
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: var(--radius-sm);
   padding: 0.75rem;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -155,18 +157,18 @@
 }
 
 .recTitle {
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
 .recAuthor {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
 
 .recReason {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--color-text);
   line-height: 1.5;
   margin: 0;

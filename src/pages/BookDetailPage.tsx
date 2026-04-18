@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { BookCover } from '@/components/books/BookCover'
 import { AuthorWorksSection } from '@/components/books/AuthorWorksSection'
+import { SeriesBooksSection } from '@/components/books/SeriesBooksSection'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { NoteList } from '@/components/notes/NoteList'
 import { IntelligencePanel } from '@/components/intelligence/IntelligencePanel'
@@ -350,12 +351,20 @@ export function BookDetailPage() {
       </section>
 
       {/* Description */}
-      {(book.description ?? olDetails?.description) && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t('book.about')}</h2>
-          <p className={styles.description}>{book.description ?? olDetails?.description}</p>
-        </section>
-      )}
+      {(book.description ?? olDetails?.description) && (() => {
+        const desc = book.description ?? olDetails?.description ?? ''
+        const paragraphs = desc.split('\n\n').filter(p => p.trim())
+        return (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{t('book.about')}</h2>
+            <div className={styles.descriptionBody}>
+              {paragraphs.map((p, i) => (
+                <p key={i} className={styles.description}>{p}</p>
+              ))}
+            </div>
+          </section>
+        )
+      })()}
 
       {/* Collections */}
       <section className={styles.section}>
@@ -386,9 +395,16 @@ export function BookDetailPage() {
       </section>
 
       {/* Intelligence */}
-      <section className={styles.section}>
-        <IntelligencePanel userBook={userBook} completedBooks={completedBooks} />
-      </section>
+      <IntelligencePanel userBook={userBook} completedBooks={completedBooks} />
+
+      {/* Series books */}
+      {olDetails?.seriesKey && (book.series_name ?? olDetails.series) && (
+        <SeriesBooksSection
+          seriesKey={olDetails.seriesKey}
+          seriesName={book.series_name ?? olDetails.series ?? ''}
+          currentOlKey={book.open_library_key ?? ''}
+        />
+      )}
 
       {/* More by author */}
       {book.authors[0] && (

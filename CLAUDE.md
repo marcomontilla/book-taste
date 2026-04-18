@@ -88,7 +88,7 @@ Pages and components never import `supabase` directly. All queries go through:
 
 | File | Domain |
 |---|---|
-| `src/services/books.ts` | OL search, ISBN lookup, `books` upsert, OL enrichment, author works |
+| `src/services/books.ts` | OL search, ISBN lookup, `books` upsert, OL enrichment, author works, series books |
 | `src/services/userBooks.ts` | `user_books` CRUD, progress, completion toggle, remove |
 | `src/services/collections.ts` | Collections + WTR + `collection_books` membership |
 | `src/services/notes.ts` | Notes CRUD |
@@ -119,6 +119,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 | `004_add_ol_key.sql` | `open_library_key` column on `books` for ISBN-less dedup |
 | `005_user_id_defaults.sql` | `DEFAULT auth.uid()` on `user_books`, `collections`, `notes` |
 | `006_intelligence.sql` | `book_insights` and `book_recommendations` tables + RLS |
+| `007_fix_collections_constraint.sql` | Replaces `UNIQUE(user_id, is_want_to_read)` with a partial unique index on `is_want_to_read = true` — fixes the bug where users could only create one regular collection |
 
 **Key design decisions — do not change without considering these:**
 
@@ -128,7 +129,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 - `profiles` has no insert RLS policy. Inserts happen only via the `handle_new_user` trigger (SECURITY DEFINER).
 - `user_books.completed_at` is set/cleared automatically by a DB trigger when `status` changes. Services only write `status`, never `completed_at`.
 - `DEFAULT auth.uid()` on user_id columns (migration 005) means service insert calls never need to pass `user_id` explicitly — Postgres fills it from the active session.
-- **`createCollection` must explicitly pass `is_want_to_read: false`**. The column default is `true`, so omitting it triggers the `collections_one_wtr` unique constraint (each user can only have one WTR collection). Always: `insert({ name, is_want_to_read: false })`.
+- **`createCollection` must explicitly pass `is_want_to_read: false`**. Always: `insert({ name, is_want_to_read: false })`. Migration 007 fixed the underlying constraint (was `UNIQUE(user_id, is_want_to_read)` which blocked multiple regular collections; now a partial index on `is_want_to_read = true` only).
 
 ## Open Library integration
 
@@ -137,13 +138,17 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 - The OL work key (`/works/OLxxxxxW`) is stored as `open_library_key` as the dedup fallback when no ISBN exists.
 - `lookupByIsbn(isbn)` in `services/books.ts`: checks DB first by `isbn_13`/`isbn_10`, then falls back to OL search.
 
-**OL enrichment** (`fetchOLDetails` in `services/books.ts`): fetches additional metadata for the book detail page. Fields: `ratings_average`, `ratings_count`, `publisher`, `language`, `subject`, `ebook_access`, `first_publish_year`, `series`. Used to show rating, publisher, ebook badge, subject chips, and series name fallback when `book.series_name` is null (books added before series parsing was implemented).
+**OL enrichment** (`fetchOLDetails` in `services/books.ts`): fetches additional metadata for the book detail page. Fields: `ratings_average`, `ratings_count`, `publisher`, `language`, `subject`, `ebook_access`, `first_publish_year`, `series`, `series_key`. Used to show rating, publisher, ebook badge, subject chips, series name fallback, and series book strip. Returns `seriesKey` (e.g. `OL326110L`) used to fetch the full series.
 
 **Author works** (`fetchAuthorWorks` in `services/books.ts`): searches OL by author name, sorted by `editions` (popularity proxy), deduplicates by title, returns up to 8 results excluding the current book. Displayed in `AuthorWorksSection` as a horizontal scroll strip.
+
+**Series books** (`fetchSeriesBooks` in `services/books.ts`): calls `/series/{seriesKey}/seeds.json`, filters to `type: "work"`, excludes the current book. Displayed in `SeriesBooksSection` (shares `AuthorWorksSection.module.css`). Only shown when `olDetails.seriesKey` is available. Cover URLs from seeds use `//` protocol-relative prefix + `-S.jpg`; upgraded to `https:` + `-M.jpg`.
 
 **Subject normalisation** (`normalizeSubjects` in `BookDetailPage.tsx`): OL subjects include internal noise (`Serie:*`, underscore keys, `nyt:*`, `Accessible book`, etc.). The function strips these, title-cases remaining tags, deduplicates, and limits to 6.
 
 **Series fallback:** `book.series_name` may be null for books added before series parsing. The hero falls back to `olDetails?.series` so the series label always appears when OL knows about it.
+
+**Description normalisation** (`normalizeDescription` in `services/books.ts`): OL works API returns descriptions with `\r\n\r\n` paragraph separators and appended noise (`([source][1])`, `----------`, `See also:`). The function normalises line endings, splits into paragraphs, strips noise on `(source)` / `----` / `See also` boundaries, strips markdown links and formatting, and limits to 6 paragraphs. Rendered as individual `<p>` elements in `BookDetailPage`.
 
 ## Barcode scanning
 
@@ -227,7 +232,7 @@ https://book-taste-woad.vercel.app/auth/callback
 ```
 
 **6. `createCollection` must pass `is_want_to_read: false`**
-The DB column default is `true`. Omitting it causes a `23505` duplicate key error on the `collections_one_wtr` unique constraint because the user already has a WTR collection. Always insert with `{ name, is_want_to_read: false }`.
+Always insert with `{ name, is_want_to_read: false }`. Migration 007 fixed the underlying DB constraint (was `UNIQUE(user_id, is_want_to_read)` which allowed only one regular collection per user; replaced with a partial unique index restricted to `is_want_to_read = true`). Run migration 007 in Supabase SQL editor if not yet applied.
 
 **7. Mobile testing via ngrok**
 Google OAuth won't work with ngrok unless you add the ngrok URL to Supabase redirect URLs and Google OAuth authorized URIs each session (URL changes on restart). Use the Vercel production URL for real testing instead.
