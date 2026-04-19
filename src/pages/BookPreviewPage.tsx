@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft } from 'lucide-react'
 import { BookCover } from '@/components/books/BookCover'
 import { upsertBook, fetchOLDetails } from '@/services/books'
@@ -24,6 +25,7 @@ export function BookPreviewPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const state = location.state as LocationState | null
 
   const [olDetails, setOlDetails] = useState<OLBookDetails | null>(null)
@@ -123,7 +125,7 @@ export function BookPreviewPage() {
           )}
           {seriesLabel && (
             <p className={styles.series}>
-              <span className={styles.seriesLabel}>Series</span> {seriesLabel}
+              <span className={styles.seriesLabel}>{t('book.series')}</span> {seriesLabel}
             </p>
           )}
           <div className={styles.metaRow}>

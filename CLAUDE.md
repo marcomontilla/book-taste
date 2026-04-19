@@ -37,13 +37,13 @@ The app throws at startup if either is missing (`src/lib/supabase.ts`). Never co
 
 **Auth:** `AuthContext` (`src/contexts/AuthContext.tsx`) is the single session source of truth. Hydrates from localStorage via `getSession()` on mount, stays in sync via `onAuthStateChange`. All auth methods throw on error; callers catch and display locally. Google OAuth redirects through `/auth/callback` → `AuthCallbackPage`.
 
-**Routing:** All app routes nested under `ProtectedRoute → AppShell` in `App.tsx`. `ProtectedRoute` redirects unauthenticated users to `/login`, preserving the intended destination in router state.
+**Routing:** All app routes nested under `ProtectedRoute → AppShell` in `App.tsx`. `ProtectedRoute` redirects unauthenticated users to `/login`, preserving the intended destination in router state. Default redirect is `/dashboard`.
 
 **Layout:** `AppShell` renders a top bar + left sidebar (≥ 768px) + bottom tab bar (< 768px). Icons use lucide-react (consistent stroke style — no emoji icons in nav). Avatar button navigates to `/settings`. `<Outlet />` renders into a scrollable `main`. Shell uses `100dvh` and `env(safe-area-inset-bottom)` for mobile/notch safety.
 
 **Theming:** `ThemeContext` (`src/contexts/ThemeContext.tsx`) applies `data-theme="dark"` to `<html>`. Modes: `light | dark | system`. Persisted to `localStorage`. All colours must go through CSS custom properties — no hardcoded hex in CSS modules.
 
-**i18n:** `react-i18next` with `en` and `es` locales in `src/i18n/locales/`. Language persisted to `localStorage`. The edge function also receives the current language and responds in that language.
+**i18n:** `react-i18next` with `en` and `es` locales in `src/i18n/locales/`. Language persisted to `localStorage`. The edge function also receives the current language and responds in that language. Every user-visible string must use `t()` — no hardcoded UI text in components.
 
 **Styling:** CSS Modules per component + `src/styles/globals.css` for design tokens, reset, and shared utility classes. No CSS framework. Palette is the **Zulia** theme.
 
@@ -89,9 +89,10 @@ Pages and components never import `supabase` directly. All queries go through:
 | File | Domain |
 |---|---|
 | `src/services/books.ts` | OL search, ISBN lookup, `books` upsert, OL enrichment, author works, series books |
-| `src/services/userBooks.ts` | `user_books` CRUD, progress, completion toggle, remove |
+| `src/services/userBooks.ts` | `user_books` CRUD, progress, completion toggle, rating, favorite, remove |
 | `src/services/collections.ts` | Collections + WTR + `collection_books` membership |
 | `src/services/notes.ts` | Notes CRUD |
+| `src/services/sessions.ts` | `logSession(userBookId, pageAt)` — inserts into `reading_sessions` |
 | `src/services/scanner.ts` | `@zxing/browser` barcode scanner — `startScan`, `stopScan`, `lookupByIsbn` |
 | `src/services/intelligence.ts` | Cache reads/writes for `book_insights` + `book_recommendations`; calls `generate-insights` edge function |
 
@@ -120,6 +121,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 | `005_user_id_defaults.sql` | `DEFAULT auth.uid()` on `user_books`, `collections`, `notes` |
 | `006_intelligence.sql` | `book_insights` and `book_recommendations` tables + RLS |
 | `007_fix_collections_constraint.sql` | Replaces `UNIQUE(user_id, is_want_to_read)` with a partial unique index on `is_want_to_read = true` — fixes the bug where users could only create one regular collection |
+| `008_rating_favorites_sessions.sql` | Adds `rating` (1–5) and `is_favorite` to `user_books`; creates `reading_sessions` table with RLS |
 
 **Key design decisions — do not change without considering these:**
 
@@ -130,6 +132,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 - `user_books.completed_at` is set/cleared automatically by a DB trigger when `status` changes. Services only write `status`, never `completed_at`.
 - `DEFAULT auth.uid()` on user_id columns (migration 005) means service insert calls never need to pass `user_id` explicitly — Postgres fills it from the active session.
 - **`createCollection` must explicitly pass `is_want_to_read: false`**. Always: `insert({ name, is_want_to_read: false })`. Migration 007 fixed the underlying constraint (was `UNIQUE(user_id, is_want_to_read)` which blocked multiple regular collections; now a partial index on `is_want_to_read = true` only).
+- `reading_sessions` is append-only. Each debounced progress save calls `logSession(userBookId, pageAt)` to record the page at that point in time. Never updated — only inserted and deleted via cascade.
 
 ## Open Library integration
 
@@ -175,13 +178,31 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 
 ## UI behaviours to preserve
 
-- **Progress auto-save:** debounces `currentPage` via `useDebounce(currentPage, 1000)` and writes to Supabase when the debounced value differs from the server value. No save button.
+- **Progress auto-save:** debounces `currentPage` via `useDebounce(currentPage, 1000)` and writes to Supabase when the debounced value differs from the server value. Also calls `logSession(userBookId, pageAt)` on every save (page > 0). No save button.
 - **Progress disabled when completed:** `status === 'completed'` wraps the progress area in `.progressDisabled` (opacity 0.45 + pointer-events none). Page value is preserved so unchecking "completed" restores it immediately.
+- **Star rating:** 1–5 interactive stars on the book detail page. Clicking the same star again clears the rating (sets to null). Stored in `user_books.rating`. Displayed read-only on library cards and dashboard.
+- **Favorites:** Heart toggle in the book detail hero and on library cards. Stored in `user_books.is_favorite`. Library "Favorites" filter shows only favorited books. Dashboard shows a favorites section.
 - **Cover lightbox:** tapping the book cover on the detail page opens a full-screen overlay. Large cover URL: replace `-M.jpg` with `-L.jpg` in the OL cover URL. Close on backdrop click or Escape.
 - **Note creation is intentional:** "Add note" button must be clicked to show the form. Saving is explicit (Save button). Editing auto-saves with a 1s debounce.
-- **Search result add buttons:** each card tracks its own `'idle' | 'loading' | 'done'` state. After a successful add the button permanently flips to "✓ In Library" / "✓ Saved" for that session.
 - **WTR → Library flow:** "Start reading" calls `addToLibrary(bookId)` then `removeFromWantToRead(collectionBookId)` — book moves from `collection_books` to `user_books`.
 - **SearchPage auto-search:** navigating to `/search?q=some+query` pre-fills the input and auto-triggers the search. Used by recommendation taps and author work taps.
+- **First read label:** if exactly 1 completed book exists and current book is completed, show "🎉 First read!" badge in the rating section.
+- **Days reading indicator:** shown in the hero meta row. Computed as `floor((now - date_added) / 86_400_000)`, minimum 1. Displays as "Xd reading" while reading or "Read in Xd" when completed.
+
+## Library & WTR features
+
+- **Library filters:** All / Reading / Completed / Favorites — pill buttons above the list.
+- **Library sort:** Recently added (default) / Title A–Z / Progress / Rating — select dropdown below filters.
+- **Currently reading count:** shown as subtitle under "My Library" heading when at least one book is being read.
+- **WTR sort:** Recently added (default) / Title A–Z — select dropdown. Book count shown as subtitle.
+- **WTR cards:** show subtitle, series, and page count in addition to title and authors.
+
+## Dashboard
+
+- Route: `/dashboard` — default landing page after login.
+- Stats grid: Reading count, Completed count, Favorites count, total Pages read (completed books use `total_pages ?? page_count`; reading books use `current_page`).
+- Sections: Currently reading (max 4, with progress bar), Favorites (max 6, with rating), Recently completed (max 4, with rating).
+- Uses `useLibrary` — no additional queries.
 
 ## Responsive breakpoints
 
@@ -190,7 +211,7 @@ All migrations in `supabase/migrations/` — must be run in order via Supabase S
 | < 768px | Bottom tab bar |
 | ≥ 768px | Left sidebar (220px) |
 
-Search and Scan are accessible at all sizes via top bar buttons and sidebar nav items.
+Search and Scan are accessible at all sizes via top bar buttons and sidebar nav items. Settings accessible via avatar button in the top bar (not in main nav).
 
 ## Known deployment gotchas
 
@@ -237,6 +258,9 @@ Always insert with `{ name, is_want_to_read: false }`. Migration 007 fixed the u
 **7. Mobile testing via ngrok**
 Google OAuth won't work with ngrok unless you add the ngrok URL to Supabase redirect URLs and Google OAuth authorized URIs each session (URL changes on restart). Use the Vercel production URL for real testing instead.
 
+**8. Migration 008 must be applied before deploying**
+Run `supabase/migrations/008_rating_favorites_sessions.sql` in the Supabase SQL editor before deploying any build that uses rating, favorites, or reading sessions. The migration adds `rating` and `is_favorite` columns to `user_books` and creates the `reading_sessions` table.
+
 ## Book discovery flow
 
 **Search / any list → click → preview → add action → full detail**
@@ -257,10 +281,11 @@ Google OAuth won't work with ngrok unless you add the ngrok URL to Supabase redi
 | `/login` | `LoginPage` | Public |
 | `/signup` | `SignUpPage` | Public |
 | `/auth/callback` | `AuthCallbackPage` | OAuth redirect handler |
-| `/library` | `LibraryPage` | Filter: all / reading / completed |
+| `/dashboard` | `DashboardPage` | Default landing; stats + currently reading + favorites + recent completions |
+| `/library` | `LibraryPage` | Filter: all / reading / completed / favorites; sort: recent / title / progress / rating |
 | `/books/preview` | `BookPreviewPage` | Book preview before adding; state: `{ book: BookSearchResult, bookId?, wtrCollectionBookId? }` |
 | `/books/:id` | `BookDetailPage` | `:id` is `user_book.id`, not `book.id` |
-| `/want-to-read` | `WantToReadPage` | `collection_books` list — items navigate to preview |
+| `/want-to-read` | `WantToReadPage` | `collection_books` list — sort: recent / title; items navigate to preview |
 | `/collections` | `CollectionsPage` | Create / rename / delete collections |
 | `/collections/:id` | `CollectionDetailPage` | Add books from library, rename, remove books |
 | `/search` | `SearchPage` | OL search → click card → preview; accepts `?q=` param |

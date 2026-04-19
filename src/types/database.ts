@@ -83,6 +83,8 @@ export interface Database {
           status: 'reading' | 'completed'
           date_added: string
           completed_at: string | null
+          rating: number | null
+          is_favorite: boolean
         }
         Insert: {
           id?: string
@@ -94,12 +96,16 @@ export interface Database {
           status?: 'reading' | 'completed'
           date_added?: string
           completed_at?: string | null
+          rating?: number | null
+          is_favorite?: boolean
         }
         Update: {
           current_page?: number
           total_pages?: number | null
           status?: 'reading' | 'completed'
           completed_at?: string | null
+          rating?: number | null
+          is_favorite?: boolean
         }
         Relationships: [
           { foreignKeyName: 'user_books_book_id_fkey'; columns: ['book_id']; referencedRelation: 'books'; referencedColumns: ['id'] }
@@ -238,6 +244,29 @@ export interface Database {
           updated_at?: string
         }
         Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          user_book_id: string
+          page_at: number
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          user_book_id: string
+          page_at: number
+          recorded_at?: string
+        }
+        Update: {
+          page_at?: number
+          recorded_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'reading_sessions_user_book_id_fkey'; columns: ['user_book_id']; referencedRelation: 'user_books'; referencedColumns: ['id'] }
+        ]
       }
     }
     Views: Record<never, never>

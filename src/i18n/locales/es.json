@@ -1,5 +1,6 @@
 {
   "nav": {
+    "dashboard": "Panel",
     "library": "Biblioteca",
     "wantToRead": "Quiero Leer",
     "collections": "Colecciones",
@@ -31,8 +32,18 @@
     "filter": {
       "all": "Todos",
       "reading": "Leyendo",
-      "completed": "Completados"
+      "completed": "Completados",
+      "favorites": "Favoritos"
     },
+    "sort": {
+      "label": "Ordenar",
+      "recent": "Añadidos recientemente",
+      "title": "Título A–Z",
+      "progress": "Progreso",
+      "rating": "Valoración"
+    },
+    "readingCount": "{{count}} leyendo ahora",
+    "emptyFavorites": "Aún no hay favoritos — toca el corazón en cualquier libro",
     "empty": {
       "title": "Tu biblioteca está vacía",
       "body": "Busca un libro para empezar."
@@ -45,6 +56,7 @@
     "progress": "Progreso de Lectura",
     "markCompleted": "Marcar como completado",
     "completed": "Completado ✓",
+    "reading": "Leyendo",
     "markedCompleted": "Marcado como completado",
     "movedToReading": "Vuelto a lectura",
     "currentPage": "Página actual",
@@ -60,7 +72,14 @@
     "ratings": "valoraciones",
     "categories": "Categorías",
     "ebookAvailable": "Leer en Open Library",
-    "moreByAuthor": "Más de {{author}}"
+    "moreByAuthor": "Más de {{author}}",
+    "series": "Serie",
+    "yourRating": "Tu valoración",
+    "firstRead": "🎉 ¡Primera lectura!",
+    "daysReading": "{{count}}d leyendo",
+    "readInDays": "Leído en {{count}}d",
+    "addToFavorites": "Añadir a favoritos",
+    "removeFromFavorites": "Quitar de favoritos"
   },
   "collections": {
     "title": "Colecciones",
@@ -95,6 +114,13 @@
     "title": "Quiero Leer",
     "add": "+ Añadir",
     "startReading": "Empezar a leer",
+    "bookCount_one": "{{count}} libro",
+    "bookCount_other": "{{count}} libros",
+    "sort": {
+      "label": "Ordenar",
+      "recent": "Añadidos recientemente",
+      "title": "Título A–Z"
+    },
     "empty": {
       "title": "Nada guardado aún",
       "body": "Usa la búsqueda para añadir libros que quieras leer después."
@@ -183,6 +209,24 @@
       "confirmTitle": "Revisa tu correo",
       "confirmBody": "Enviamos un enlace de confirmación a {{email}}. Haz clic para activar tu cuenta.",
       "backToLogin": "Volver al inicio de sesión"
+    }
+  },
+  "dashboard": {
+    "title": "Panel",
+    "stats": {
+      "reading": "Leyendo",
+      "completed": "Completados",
+      "favorites": "Favoritos",
+      "pages": "Páginas leídas"
+    },
+    "currentlyReading": "Leyendo ahora",
+    "favorites": "Favoritos",
+    "recentlyCompleted": "Completados recientemente",
+    "page": "Página {{page}}",
+    "empty": {
+      "title": "Nada aquí aún",
+      "body": "Añade libros a tu biblioteca para ver tus estadísticas.",
+      "btn": "Buscar libros"
     }
   },
   "settings": {

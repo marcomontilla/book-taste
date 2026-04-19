@@ -55,3 +55,19 @@ export async function removeFromLibrary(userBookId: string) {
     .eq('id', userBookId)
   if (error) throw error
 }
+
+export async function updateRating(userBookId: string, rating: number | null) {
+  const { error } = await supabase
+    .from('user_books')
+    .update({ rating })
+    .eq('id', userBookId)
+  if (error) throw error
+}
+
+export async function toggleFavorite(userBookId: string, isFavorite: boolean) {
+  const { error } = await supabase
+    .from('user_books')
+    .update({ is_favorite: isFavorite })
+    .eq('id', userBookId)
+  if (error) throw error
+}

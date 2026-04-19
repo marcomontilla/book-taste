@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { SignUpPage } from '@/pages/auth/SignUpPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
+import { DashboardPage } from '@/pages/DashboardPage'
 import { LibraryPage } from '@/pages/LibraryPage'
 import { WantToReadPage } from '@/pages/WantToReadPage'
 import { CollectionsPage } from '@/pages/CollectionsPage'
@@ -31,6 +32,7 @@ export default function App() {
 
             {/* Protected — all wrapped in AppShell */}
             <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+              <Route path="/dashboard"           element={<DashboardPage />} />
               <Route path="/library"             element={<LibraryPage />} />
               <Route path="/want-to-read"        element={<WantToReadPage />} />
               <Route path="/collections"         element={<CollectionsPage />} />
@@ -42,7 +44,7 @@ export default function App() {
               <Route path="/scan"               element={<ScanPage />} />
             </Route>
 
-            <Route path="*" element={<Navigate to="/library" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </ToastProvider>
       </AuthProvider>

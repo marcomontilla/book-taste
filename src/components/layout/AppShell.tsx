@@ -1,8 +1,8 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  BookOpen, Bookmark, FolderOpen, Settings2,
-  Search, ScanLine, User,
+  BookOpen, Bookmark, FolderOpen,
+  Search, ScanLine, User, LayoutDashboard,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from './AppShell.module.css'
@@ -13,10 +13,10 @@ export function AppShell() {
   const navigate = useNavigate()
 
   const navItems = [
-    { to: '/library',      label: t('nav.library'),     Icon: BookOpen   },
-    { to: '/want-to-read', label: t('nav.wantToRead'),  Icon: Bookmark   },
-    { to: '/collections',  label: t('nav.collections'), Icon: FolderOpen },
-    { to: '/settings',     label: t('nav.settings'),    Icon: Settings2  },
+    { to: '/dashboard',    label: t('nav.dashboard'),   Icon: LayoutDashboard },
+    { to: '/library',      label: t('nav.library'),     Icon: BookOpen        },
+    { to: '/want-to-read', label: t('nav.wantToRead'),  Icon: Bookmark        },
+    { to: '/collections',  label: t('nav.collections'), Icon: FolderOpen      },
   ]
 
   return (

@@ -27,6 +27,8 @@ export interface UserBookWithBook {
   status: ReadingStatus
   date_added: string
   completed_at: string | null
+  rating: number | null
+  is_favorite: boolean
   book: Book
 }
 

@@ -1,0 +1,31 @@
+.stars {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.readonly {
+  pointer-events: none;
+}
+
+.star {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-border);
+  transition: color var(--transition), transform 0.1s;
+  line-height: 1;
+}
+
+.star:hover,
+.star.filled {
+  color: var(--color-accent);
+}
+
+.star:active {
+  transform: scale(0.9);
+}
+
+/* sizes */
+.md .star { font-size: 1.375rem; }
+.sm .star { font-size: 1rem; }

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
+import { X, Heart } from 'lucide-react'
 import { BookCover } from '@/components/books/BookCover'
 import { AuthorWorksSection } from '@/components/books/AuthorWorksSection'
 import { SeriesBooksSection } from '@/components/books/SeriesBooksSection'
 import { ProgressBar } from '@/components/ui/ProgressBar'
+import { StarRating } from '@/components/ui/StarRating'
 import { NoteList } from '@/components/notes/NoteList'
 import { IntelligencePanel } from '@/components/intelligence/IntelligencePanel'
 import { useUserBook } from '@/hooks/useUserBook'
@@ -15,7 +16,10 @@ import {
   updateProgress,
   setCompleted,
   removeFromLibrary,
+  updateRating,
+  toggleFavorite,
 } from '@/services/userBooks'
+import { logSession } from '@/services/sessions'
 import {
   getCollectionsForBook,
   addBookToCollection,
@@ -68,13 +72,19 @@ export function BookDetailPage() {
   const [currentPage, setCurrentPage] = useState(0)
   const debouncedPage = useDebounce(currentPage, 1000)
 
+  const [rating, setRating] = useState<number | null>(null)
+  const [isFavorite, setIsFavorite] = useState(false)
   const [collectionStatus, setCollectionStatus] = useState<BookCollectionStatus[]>([])
   const [completedBooks, setCompletedBooks] = useState<{ title: string; authors: string[] }[]>([])
   const [olDetails, setOlDetails] = useState<OLBookDetails | null>(null)
   const [coverZoomed, setCoverZoomed] = useState(false)
 
   useEffect(() => {
-    if (userBook) setCurrentPage(userBook.current_page)
+    if (userBook) {
+      setCurrentPage(userBook.current_page)
+      setRating(userBook.rating)
+      setIsFavorite(userBook.is_favorite)
+    }
   }, [userBook])
 
   useEffect(() => {
@@ -115,6 +125,9 @@ export function BookDetailPage() {
     updateProgress(userBook.id, debouncedPage).catch(() =>
       showToast('Could not save progress', 'error'),
     )
+    if (debouncedPage > 0) {
+      logSession(userBook.id, debouncedPage).catch(() => {})
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedPage])
 
@@ -156,6 +169,29 @@ export function BookDetailPage() {
       showToast('Could not remove book', 'error')
     }
   }, [userBook, navigate, showToast, t])
+
+  const handleRating = useCallback(async (newRating: number | null) => {
+    if (!userBook) return
+    setRating(newRating)
+    try {
+      await updateRating(userBook.id, newRating)
+    } catch {
+      setRating(rating)
+      showToast('Could not save rating', 'error')
+    }
+  }, [userBook, rating, showToast])
+
+  const handleFavoriteToggle = useCallback(async () => {
+    if (!userBook) return
+    const next = !isFavorite
+    setIsFavorite(next)
+    try {
+      await toggleFavorite(userBook.id, next)
+    } catch {
+      setIsFavorite(isFavorite)
+      showToast('Could not update favorite', 'error')
+    }
+  }, [userBook, isFavorite, showToast])
 
   const handleCollectionToggle = useCallback(async (status: BookCollectionStatus) => {
     if (!userBook) return
@@ -202,6 +238,12 @@ export function BookDetailPage() {
 
   const subjects = normalizeSubjects(olDetails?.subjects ?? [])
 
+  const daysReading = Math.max(
+    1,
+    Math.floor((Date.now() - new Date(userBook.date_added).getTime()) / 86_400_000),
+  )
+  const isFirstRead = status === 'completed' && completedBooks.length === 1
+
   const showEbook =
     olDetails?.ebookAccess &&
     olDetails.ebookAccess !== 'no_ebook' &&
@@ -241,28 +283,38 @@ export function BookDetailPage() {
         </button>
 
         <div className={styles.heroInfo}>
-          <h1 className={styles.title}>{book.title}</h1>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>{book.title}</h1>
+            <button
+              className={[styles.favoriteBtn, isFavorite ? styles.favoriteBtnActive : ''].join(' ')}
+              onClick={handleFavoriteToggle}
+              aria-label={isFavorite ? t('book.removeFromFavorites') : t('book.addToFavorites')}
+            >
+              <Heart size={20} strokeWidth={2} fill={isFavorite ? 'currentColor' : 'none'} />
+            </button>
+          </div>
           {book.subtitle && <p className={styles.subtitle}>{book.subtitle}</p>}
           {authors && <p className={styles.author}>{authors}</p>}
           {(book.series_name ?? olDetails?.series) && (
             <p className={styles.series}>
-              <span className={styles.seriesLabel}>Series</span>
+              <span className={styles.seriesLabel}>{t('book.series')}</span>
               {book.series_name ?? olDetails?.series}
               {book.series_number != null ? ` · #${book.series_number}` : ''}
             </p>
           )}
 
           <div className={styles.metaRow}>
-            {(olDetails?.firstPublishYear ?? book.page_count) && (
-              <>
-                {olDetails?.firstPublishYear && (
-                  <span className={styles.metaItem}>{olDetails.firstPublishYear}</span>
-                )}
-                {book.page_count && (
-                  <span className={styles.metaItem}>{book.page_count} {t('book.pages')}</span>
-                )}
-              </>
+            {olDetails?.firstPublishYear && (
+              <span className={styles.metaItem}>{olDetails.firstPublishYear}</span>
             )}
+            {book.page_count && (
+              <span className={styles.metaItem}>{book.page_count} {t('book.pages')}</span>
+            )}
+            <span className={styles.metaItem}>
+              {status === 'completed'
+                ? t('book.readInDays', { count: daysReading })
+                : t('book.daysReading', { count: daysReading })}
+            </span>
           </div>
 
           {olDetails?.ratingsAverage && (
@@ -346,6 +398,20 @@ export function BookDetailPage() {
                 onChange={e => setCurrentPage(Math.max(0, Number(e.target.value)))}
               />
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* Rating + first read */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('book.yourRating')}</h2>
+        <div className={styles.ratingRow}>
+          <StarRating value={rating} onChange={handleRating} />
+          {rating != null && (
+            <span className={styles.ratingValue}>{rating} / 5</span>
+          )}
+          {isFirstRead && (
+            <span className={styles.firstReadBadge}>{t('book.firstRead')}</span>
           )}
         </div>
       </section>

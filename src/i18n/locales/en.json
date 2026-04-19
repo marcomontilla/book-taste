@@ -1,5 +1,6 @@
 {
   "nav": {
+    "dashboard": "Dashboard",
     "library": "Library",
     "wantToRead": "Want to Read",
     "collections": "Collections",
@@ -31,8 +32,18 @@
     "filter": {
       "all": "All",
       "reading": "Reading",
-      "completed": "Completed"
+      "completed": "Completed",
+      "favorites": "Favorites"
     },
+    "sort": {
+      "label": "Sort",
+      "recent": "Recently added",
+      "title": "Title A–Z",
+      "progress": "Progress",
+      "rating": "Rating"
+    },
+    "readingCount": "{{count}} currently reading",
+    "emptyFavorites": "No favorites yet — tap the heart on any book",
     "empty": {
       "title": "Your library is empty",
       "body": "Search for a book to get started."
@@ -45,6 +56,7 @@
     "progress": "Reading Progress",
     "markCompleted": "Mark as completed",
     "completed": "Completed ✓",
+    "reading": "Reading",
     "markedCompleted": "Marked as completed",
     "movedToReading": "Moved back to reading",
     "currentPage": "Current page",
@@ -60,7 +72,14 @@
     "ratings": "ratings",
     "categories": "Categories",
     "ebookAvailable": "Read on Open Library",
-    "moreByAuthor": "More by {{author}}"
+    "moreByAuthor": "More by {{author}}",
+    "series": "Series",
+    "yourRating": "Your rating",
+    "firstRead": "🎉 First read!",
+    "daysReading": "{{count}}d reading",
+    "readInDays": "Read in {{count}}d",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites"
   },
   "collections": {
     "title": "Collections",
@@ -95,6 +114,13 @@
     "title": "Want to Read",
     "add": "+ Add",
     "startReading": "Start reading",
+    "bookCount_one": "{{count}} book",
+    "bookCount_other": "{{count}} books",
+    "sort": {
+      "label": "Sort",
+      "recent": "Recently added",
+      "title": "Title A–Z"
+    },
     "empty": {
       "title": "Nothing saved yet",
       "body": "Use the Search page to add books you want to read later."
@@ -183,6 +209,24 @@
       "confirmTitle": "Check your email",
       "confirmBody": "We sent a confirmation link to {{email}}. Click it to activate your account.",
       "backToLogin": "Back to Login"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "reading": "Reading",
+      "completed": "Completed",
+      "favorites": "Favorites",
+      "pages": "Pages read"
+    },
+    "currentlyReading": "Currently reading",
+    "favorites": "Favorites",
+    "recentlyCompleted": "Recently completed",
+    "page": "Page {{page}}",
+    "empty": {
+      "title": "Nothing here yet",
+      "body": "Add books to your library to see your stats.",
+      "btn": "Find books"
     }
   },
   "settings": {
